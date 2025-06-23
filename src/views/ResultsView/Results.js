@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Accordion from "react-bootstrap/Accordion";
-import "../../App.css";
+import "../../styles/App.css";
 import ResultInfo from "./components/ResultInfo";
 import useTravelRecommenderStore from "../../store/travelRecommenderStore";
 

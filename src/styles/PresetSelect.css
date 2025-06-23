@@ -1,0 +1,32 @@
+.select-react-select .form-label {
+  font-size: 1rem;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.select-react-select {
+  margin-bottom: 15px;
+}
+
+.custom-option .option-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.custom-option .option-description {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.custom-option:hover .option-title,
+.custom-option:hover .option-description {
+  color: #ffffff;
+}
+
+/* Ensure pointer cursor and prevent text selection */
+.select-react-select .select__single-value,
+.select-react-select .select__value-container {
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+}

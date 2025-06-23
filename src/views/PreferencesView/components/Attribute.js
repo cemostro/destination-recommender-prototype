@@ -1,6 +1,6 @@
 import React from "react";
 import { Row, Col } from "react-bootstrap";
-import "../../../App.css";
+import "../../../styles/App.css";
 import SlideRange from "./SlideRange";
 import PrioritySwitch from "./PrioritySwitch";
 

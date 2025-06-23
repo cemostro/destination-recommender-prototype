@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from "react";
 import { ButtonGroup, ToggleButton, Button } from "react-bootstrap";
-import "../../../App.css";
+import "../../../styles/App.css";
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",

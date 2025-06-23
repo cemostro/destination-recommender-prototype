@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../../../App.css";
+import "../../../styles/App.css";
 import { DetailScores } from "./DetailScores";
 import { NoviceScores } from "./NoviceScores";
 import { PieChartComponent } from "./PieChartComponent";

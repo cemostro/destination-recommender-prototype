@@ -1,6 +1,6 @@
 import React from "react";
 import { PieChart, Pie, Cell } from "recharts";
-import "../../../App.css";
+import "../../../styles/App.css";
 import * as myConstant from "../../../data/constantData";
 
 const Donut = ({ scores, label }) => {

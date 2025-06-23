@@ -1,6 +1,6 @@
 import React from "react";
 import { Form } from "react-bootstrap";
-import "../../../App.css";
+import "../../../styles/App.css";
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 
 const AdditionalInfo = () => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./App.css";
+import "./styles/App.css";
 import TravelRecommender from "./views/GeneralView/TravelRecommender";
 import LoadCountriesTask from "./tasks/LoadCountriesTask";
 import Loading from "./views/GeneralView/Loading";

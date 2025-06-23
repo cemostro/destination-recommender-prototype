@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { Form, Row, Col } from "react-bootstrap";
 import { debounce } from "lodash";
-import "../../../App.css";
+import "../../../styles/App.css";
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 
 const Budget = () => {
