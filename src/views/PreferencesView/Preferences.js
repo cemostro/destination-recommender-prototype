@@ -30,7 +30,7 @@ const Preferences = () => {
         </Col>
         <Col xs={6} className="right-column">
           <p style={{ textAlign: "left" }}>Choose your journey style:</p>
-          <div className="journey-style-placeholder-1">
+          <div className="journey-style-placeholder-1" style={{ width: "300px"}}>
             <PresetSelect
               value={selectedJourneyStyle}
               onChange={(e) => setSelectedJourneyStyle(e)}
