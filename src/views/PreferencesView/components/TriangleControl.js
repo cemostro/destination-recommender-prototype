@@ -148,11 +148,11 @@ const TriangleControl = ({ weights, setWeights, point, setPoint }) => {
 
     parameters.forEach((param, i) => {
       const angle = (i / 3) * 2 * Math.PI - Math.PI / 2;
-      let x = centerX + 1.2 * triangleSize * Math.cos(angle);
+      let x = centerX + 1.2 * triangleSize * -Math.cos(angle);
       if (i === 1) {
-        x -= 20; // Adjust for right parameter
+        x += 20; // Adjust for right parameter
       } else if (i === 2) {
-        x += 20; // Adjust for left parameter
+        x -= 20; // Adjust for left parameter
       }
       const y = centerY + 1.2 * triangleSize * Math.sin(angle);
       svg.append('text')

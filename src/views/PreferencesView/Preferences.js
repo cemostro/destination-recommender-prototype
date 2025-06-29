@@ -93,10 +93,7 @@ const Preferences = () => {
     const total = weightsRaw.reduce((a, b) => a + b, 0);
     const newWeights = total > 0 ? weightsRaw.map(w => (w / total) * 100) : [33.33, 33.33, 33.34];
     setAlgorithmWeights(newWeights.map(v => Math.round(v * 100) / 100));
-    const matchingPreset = presets.find(p =>
-      p.weights.every((w, i) => Math.abs(w - newWeights[i]) < 0.01)
-    );
-    setSelectedPreset(matchingPreset ? matchingPreset.name : 'custom');
+    setSelectedPreset('custom');
   };
 
   return (

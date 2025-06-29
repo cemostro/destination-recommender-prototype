@@ -1,11 +1,15 @@
 .weight-inputs-container {
-  padding: 10px;
+  display: flex; /* Flex container */
+  flex-wrap: wrap; /* Allow items to wrap to new lines */
+  gap: 10px; /* Space between items */
+  align-items: center; /* Vertically center items */
+  justify-content: center; /* Center the container content */
 }
 
 .weight-item {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 0; /* Remove bottom margin */
 }
 
 .color-dot {
@@ -38,6 +42,5 @@
 }
 
 .percent-sign {
-  margin-left: 5px;
   color: #ffffff;
 }
