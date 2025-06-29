@@ -9,6 +9,7 @@ import TravelMonths from "./components/TravelMonths";
 import useTravelRecommenderStore from "../../store/travelRecommenderStore";
 import PresetSelect from "./components/PresetSelect";
 import TriangleControl from "./components/TriangleControl";
+import WeightInputs from "./components/WeightInputs";
 
 const presets = [
   { value: 'balanced', weights: [33.33, 33.33, 33.34] },
@@ -23,7 +24,8 @@ const Preferences = () => {
   const [key, setKey] = useState('advanced');
 
   const [algorithmWeights, setAlgorithmWeights] = useState([33.33, 33.33, 33.34]);
-  const [point, setPoint] = useState({ x: 150, y: 150 });
+  const [point, setPoint] = useState({ x: 200, y: 185 });
+
 
   const handlePresetChange = (presetName) => {
     setSelectedPreset(presetName);
@@ -78,7 +80,7 @@ const Preferences = () => {
   };
 
   const updateWeightsFromPoint = (x, y) => {
-    const width = 300, height = 300, triangleSize = 120;
+    const width = 400, height = 370, triangleSize = 140;
     const centerX = width / 2, centerY = height / 2;
     const v0 = { x: centerX, y: centerY - triangleSize }; // Personalization
     const v1 = { x: centerX - triangleSize * Math.sqrt(3) / 2, y: centerY + triangleSize / 2 }; // Popularity
@@ -131,7 +133,10 @@ const Preferences = () => {
             />
           </div>
           <div className="journey-style-placeholder-3">
-            <p>[Journey Style Component 3 Will Go Here]</p>
+            <WeightInputs
+              weights={algorithmWeights}
+              handleWeightChange={handleWeightChange}
+            />
           </div>
         </Col>
       </Row>

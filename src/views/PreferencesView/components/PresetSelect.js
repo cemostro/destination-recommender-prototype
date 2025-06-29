@@ -97,8 +97,6 @@ const PresetSelect = ({ label, value, onChange, className }) => {
     },
   ];
 
-  console.log(value);
-
   const customStyles = {
     control: (provided) => ({
       ...provided,
