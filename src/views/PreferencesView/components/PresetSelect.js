@@ -60,6 +60,20 @@ const CustomValueContainer = ({ children, ...props }) => {
 const PresetSelect = ({ label, value, onChange, className }) => {
 
     const options = [
+      {
+      value: 'custom',
+      label: 'Custom Mode',
+      description: 'Create my own journey',
+      icon: faBagShopping,
+      backgroundColor: '#F8D7DA',
+    },
+      {
+      value: 'balanced',
+      label: 'Balanced Mode',
+      description: 'A mix of everything',
+      icon: faBagShopping,
+      backgroundColor: '#B2E0F2',
+    },
     {
       value: 'personalized',
       label: 'Personalized Mode',
@@ -89,7 +103,7 @@ const PresetSelect = ({ label, value, onChange, className }) => {
     control: (provided) => ({
       ...provided,
       borderRadius: '5px',
-      backgroundColor: value ? options.find(option => option.value === value).backgroundColor : 'transparent',
+      backgroundColor: value ? options.find(option => option.value === value)?.backgroundColor : 'transparent',
       boxShadow: 'none',
       '&:hover': { borderColor: '#2980b9' },
       minHeight: '30px',
