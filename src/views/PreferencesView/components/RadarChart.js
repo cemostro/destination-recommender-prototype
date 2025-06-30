@@ -1,32 +1,33 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as d3 from 'd3';
 import "../../../styles/RadarChart.css";
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 import { COLORS } from '../../../data/constantData';
+import { debounce } from "lodash";
 
 const RadarChart = () => {
     const { userData, setUserData } = useTravelRecommenderStore();
 
     const canvasRef = useRef(null);
     const svgRef = useRef(null);
-    const width = 500;
+    const width = 600;
     const height = 500;
     const radius = 190;
     const centerX = width / 2;
     const centerY = height / 2;
 
-    const onChange = (attrName, value) => {
-        setUserData({
-            ...userData,
-            Attributes: {
-                ...userData.Attributes,
-                [attrName]: {
-                    ...userData.Attributes[attrName],
-                    score: value,
-                },
-            },
-        });
-    };
+    const [attributeValues, setAttributeValues] = useState(
+        () => Object.fromEntries(
+            Object.entries(userData.Attributes).map(([key, { score }]) => [key, score])
+        )
+    );
+
+    const updateUserData = useCallback(
+        debounce((newAttributes) => {
+            setUserData({ ...userData, Attributes: newAttributes });
+        }, 500),
+        [setUserData]
+    );
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -40,11 +41,11 @@ const RadarChart = () => {
         svg.selectAll('*').remove();
 
         // Background
-        ctx.fillStyle = '#f0f0f0';
-        ctx.fillRect(0, 0, width, height);
+        // ctx.fillStyle = '#f0f0f0';
+        // ctx.fillRect(0, 0, width, height);
 
-        const attributes = Object.keys(userData.Attributes);
-        const values = attributes.map(attr => userData.Attributes[attr].score);
+        const attributes = Object.keys(attributeValues);
+        const values = attributes.map(attr => attributeValues[attr]);
 
         // Calculate vertex points
         const points = attributes.map((_, i) => {
@@ -174,7 +175,11 @@ const RadarChart = () => {
                     // Update values state
                     const attributeIndex = attributes.indexOf(attributes[points.indexOf(d)]);
                     const attributeName = attributes[attributeIndex];
-                    onChange(attributeName, newValue);
+                    setAttributeValues(prev => ({
+                        ...prev,
+                        [attributeName]: newValue
+                    }));
+                    updateUserData({ ...userData.Attributes, [attributeName]: { ...userData.Attributes[attributeName], score: newValue } });
                 })
             );
 
@@ -191,6 +196,7 @@ const RadarChart = () => {
                 .attr('fill', '#333333')
                 .attr('font-size', 14)
                 .attr('font-family', "'Inter', sans-serif")
+                .attr('fill', '#ffffff')
                 .text(attr);
         });
 
@@ -207,10 +213,14 @@ const RadarChart = () => {
                 const value = Math.min(Math.max((radiusClicked / maxRadius) * 100, 0), 100);
 
                 const attributeName = attributes[index];
-                onChange(attributeName, value);
+                setAttributeValues(prev => ({
+                    ...prev,
+                    [attributeName]: Math.round(value)
+                }));
+                updateUserData({ ...userData.Attributes, [attributeName]: { ...userData.Attributes[attributeName], score: Math.round(value) } });
             }
         });
-    }, [userData]);
+    }, [attributeValues, userData]);
 
     return (
         <div className="radar-chart-container">
