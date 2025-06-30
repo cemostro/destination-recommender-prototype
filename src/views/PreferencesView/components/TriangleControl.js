@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import "../../../styles/TriangleControl.css";
-import { parameters, parameterColors } from '../../../utils/config';
+import { parameters, parameterColors } from '../../../data/constantData';
 
 const TriangleControl = ({ weights, setWeights, point, setPoint }) => {
   const [hoveredParameter, setHoveredParameter] = useState(null);

@@ -10,6 +10,7 @@ import useTravelRecommenderStore from "../../store/travelRecommenderStore";
 import PresetSelect from "./components/PresetSelect";
 import TriangleControl from "./components/TriangleControl";
 import WeightInputs from "./components/WeightInputs";
+import RadarChart from "./components/RadarChart";
 
 const presets = [
   { value: 'balanced', weights: [33.33, 33.33, 33.34] },
@@ -104,7 +105,7 @@ const Preferences = () => {
         <Col xs={6} style={{ borderRight: "1px solid rgba(255, 255, 255, 0.25)" }}>
           <p style={{ textAlign: "left" }}>Craft your travel taste map:</p>
           <div className="taste-map-placeholder">
-            <p>[Travel Taste Map Component Will Go Here]</p>
+            <RadarChart/>
           </div>
           <div className="settings-button-placeholder">
             <p>[Settings Button Will Go Here]</p>

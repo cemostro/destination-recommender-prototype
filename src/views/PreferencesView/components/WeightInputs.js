@@ -1,6 +1,6 @@
 import React from 'react';
 import "../../../styles/WeightInputs.css";
-import { parameters, parameterColors } from '../../../utils/config';
+import { parameters, parameterColors } from '../../../data/constantData';
 
 const WeightInputs = ({ weights, handleWeightChange }) => {
 
