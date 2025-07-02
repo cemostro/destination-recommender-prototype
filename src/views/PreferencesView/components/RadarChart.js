@@ -22,6 +22,10 @@ const RadarChart = () => {
         )
     );
 
+    const [includedAttributes, setIncludedAttributes] = useState(
+        () => Object.keys(userData.Attributes)
+    );
+
     const updateUserData = useCallback(
         debounce((newAttributes) => {
             setUserData({ ...userData, Attributes: newAttributes });
@@ -44,7 +48,7 @@ const RadarChart = () => {
         // ctx.fillStyle = '#f0f0f0';
         // ctx.fillRect(0, 0, width, height);
 
-        const attributes = Object.keys(attributeValues);
+        const attributes = Object.keys(attributeValues).filter(attr => includedAttributes.includes(attr));
         const values = attributes.map(attr => attributeValues[attr]);
 
         // Calculate vertex points
@@ -186,12 +190,13 @@ const RadarChart = () => {
         // Labels
         attributes.forEach((attr, i) => {
             const angle = (i / attributes.length) * 2 * Math.PI - Math.PI / 2;
-            const x = centerX + 1.2 * radius * Math.cos(angle) + 20;
+            // console.log(`Angle for ${attr}: ${angle}`); CHECK FOR BETTER LABEL ALIGNMENT
+            const x = centerX + 1.25 * radius * Math.cos(angle);
             const y = centerY + 1.1 * radius * Math.sin(angle);
             svg.append('text')
                 .attr('x', x)
                 .attr('y', y)
-                .attr('text-anchor', 'end')
+                .attr('text-anchor', 'middle')
                 .attr('dy', '0.35em')
                 .attr('fill', '#333333')
                 .attr('font-size', 14)

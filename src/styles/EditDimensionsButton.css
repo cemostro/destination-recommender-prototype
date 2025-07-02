@@ -1,0 +1,21 @@
+.edit-dimensions-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.edit-dimensions-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  color: #ffffff;
+  background-color: #193D4B;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-dimensions-button:hover {
+  background-color: #2a5a70;
+}

@@ -11,6 +11,8 @@ import PresetSelect from "./components/PresetSelect";
 import TriangleControl from "./components/TriangleControl";
 import WeightInputs from "./components/WeightInputs";
 import RadarChart from "./components/RadarChart";
+import EditDimensionsButton from "./components/EditDimensionsButton";
+
 
 const presets = [
   { value: 'balanced', weights: [33.33, 33.33, 33.34] },
@@ -108,7 +110,7 @@ const Preferences = () => {
             <RadarChart/>
           </div>
           <div className="settings-button-placeholder">
-            <p>[Settings Button Will Go Here]</p>
+            <EditDimensionsButton />
           </div>
         </Col>
         <Col xs={6} className="right-column">
