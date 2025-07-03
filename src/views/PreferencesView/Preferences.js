@@ -167,7 +167,8 @@ const Preferences = () => {
 
       </div> */}
       <hr />
-      <p style={{ textAlign: "left", fontSize: "0.8em" }}>(c) Asal Nesar Noubari, Cem Nasit Sarica and Wolfgang Wörndl (Technical University of Munich)</p>
+      <p style={{ textAlign: "left", fontSize: "0.8em", marginBottom: 0 }}>(c) Asal Nesar Noubari, Cem Nasit Sarica and Wolfgang Wörndl (Technical University of Munich)</p>
+      <p style={{ textAlign: "left", fontSize: "0.8em" }}>Icons made by Freepik, monkik from www.flaticon.com</p>
     </div >
   );
 };

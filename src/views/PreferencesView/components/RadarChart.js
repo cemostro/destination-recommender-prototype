@@ -28,6 +28,7 @@ const RadarChart = () => {
         );
     }, [userData.Attributes]);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const updateUserData = useCallback(
         debounce((newAttributes) => {
             setUserData({ ...userData, Attributes: newAttributes });

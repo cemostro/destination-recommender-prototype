@@ -1,9 +1,6 @@
 import React from 'react';
-import Select, { components, ValueContainerProps } from 'react-select';
+import Select, { components } from 'react-select';
 import "../../../styles/PresetSelect.css";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBagShopping } from '@fortawesome/free-solid-svg-icons';
-import { ValueContainer } from 'react-select/animated';
 
 const CustomValue = (props) => {
   const { data } = props;
@@ -18,7 +15,11 @@ const CustomValue = (props) => {
         borderRadius: '5px',
       }}
     >
-      <FontAwesomeIcon icon={data.icon} style={{ width: '30px', height: '30px', marginRight: '10px', color: '#2c3e50' }} />
+      <img
+        src={data.image}
+        alt={data.label}
+        style={{ width: '30px', height: '30px', marginRight: '10px', flexShrink: 0, objectFit: 'contain' }}
+      />
       <div style={{ flex: 1 }}>
         <div className="option-title">{data.label}</div>
         {/* <div className="option-description">{data.description}</div> */}
@@ -37,9 +38,13 @@ const CustomOption = (props) => {
       className="custom-option"
       style={{ display: 'flex', alignItems: 'center', padding: '10px', backgroundColor: data.backgroundColor }}
     >
-      <FontAwesomeIcon icon={data.icon} style={{ width: '40px', height: '40px', marginRight: '10px', color: '#2c3e50' }} />
-      <div>
-        <div className="option-title">{data.label}</div>
+      <img
+        src={data.image}
+        alt={data.label}
+        style={{ width: '40px', height: '40px', marginRight: '10px', flexShrink: 0, objectFit: 'contain' }}
+      />
+      <div style={{ flex: 1, textAlign: 'left' }}>
+        <div className="option-title" style={{ margin: 0 }}>{data.label}</div>
         <div className="option-description">{data.description}</div>
       </div>
     </div>
@@ -59,40 +64,40 @@ const CustomValueContainer = ({ children, ...props }) => {
 
 const PresetSelect = ({ label, value, onChange, className }) => {
 
-    const options = [
-      {
+  const options = [
+    {
       value: 'custom',
       label: 'Custom Mode',
       description: 'Create my own journey',
-      icon: faBagShopping,
+      image: process.env.PUBLIC_URL + 'images/user.png',
       backgroundColor: '#F8D7DA',
     },
-      {
+    {
       value: 'balanced',
       label: 'Balanced Mode',
       description: 'A mix of everything',
-      icon: faBagShopping,
+      image: process.env.PUBLIC_URL + 'images/scale.png',
       backgroundColor: '#B2E0F2',
     },
     {
       value: 'personalized',
       label: 'Personalized Mode',
       description: 'What suits me best',
-      icon: faBagShopping,
+      image: process.env.PUBLIC_URL + 'images/user.png',
       backgroundColor: '#D1D2FB',
     },
     {
       value: 'explorer',
       label: 'Explorer Mode',
       description: 'Take me somewhere unexpected',
-      icon: faBagShopping,
+      image: process.env.PUBLIC_URL + 'images/compass.png',
       backgroundColor: '#FEF0B9',
     },
     {
       value: 'classic',
       label: 'Classic Mode',
       description: 'Show me the favourites',
-      icon: faBagShopping,
+      image: process.env.PUBLIC_URL + 'images/landmark.png',
       backgroundColor: '#C0F3EC',
     },
   ];
@@ -136,7 +141,7 @@ const PresetSelect = ({ label, value, onChange, className }) => {
     <div className={"select-react-select"}>
       {label && <label className="form-label">{label}</label>}
       <Select
-        options={options}
+        options={options.filter(option => option.value !== 'custom')}
         value={options.find((option) => option.value === value)}
         onChange={(selected) => onChange(selected ? selected.value : '')}
         styles={customStyles}
