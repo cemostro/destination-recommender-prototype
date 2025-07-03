@@ -15,17 +15,21 @@ const EditDimensionsPopup = ({ onClose }) => {
     }, [userData.Attributes]);
 
     const handleSave = () => {
-        const updatedAttributes = Object.fromEntries(
-            Object.entries(userData.Attributes).map(([attr, data]) => [
-                attr,
-                {
-                    ...data,
-                    weight: includedAttributes.includes(attr) ?  1 : 0
-                }
-            ])
-        );
-        setUserData({ ...userData, Attributes: updatedAttributes });
-        onClose();
+        if (includedAttributes.length > 3) {
+            const updatedAttributes = Object.fromEntries(
+                Object.entries(userData.Attributes).map(([attr, data]) => [
+                    attr,
+                    {
+                        ...data,
+                        weight: includedAttributes.includes(attr) ? 1 : 0
+                    }
+                ])
+            );
+            setUserData({ ...userData, Attributes: updatedAttributes });
+            onClose();
+        } else {
+            alert('At least 3 attributes must be included.');
+        }
     };
 
     const handleCheckboxChange = (attr) => {

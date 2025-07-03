@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import * as d3 from 'd3';
 import "../../../styles/RadarChart.css";
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
@@ -22,9 +22,11 @@ const RadarChart = () => {
         )
     );
 
-    const [includedAttributes, setIncludedAttributes] = useState(
-        () => Object.keys(userData.Attributes)
-    );
+    const includedAttributes = useMemo(() => {
+        return Object.keys(userData.Attributes).filter(
+            attr => userData.Attributes[attr].weight > 0
+        );
+    }, [userData.Attributes]);
 
     const updateUserData = useCallback(
         debounce((newAttributes) => {
@@ -34,8 +36,6 @@ const RadarChart = () => {
     );
 
     const handleIncludedAttributesChange = useCallback((newAttributes) => {
-        setIncludedAttributes(newAttributes);
-        // Update weights based on includedAttributes
         const updatedAttributes = Object.fromEntries(
             Object.entries(userData.Attributes).map(([attr, data]) => [
                 attr,
@@ -44,7 +44,7 @@ const RadarChart = () => {
                     weight: newAttributes.includes(attr) ? 1 : 0 // Set weight to 1 if included, otherwise 0
                 }
             ]
-        ));
+            ));
         updateUserData(updatedAttributes);
     }, [userData, updateUserData]);
 
@@ -219,41 +219,43 @@ const RadarChart = () => {
                 .attr('fill', '#ffffff')
                 .text(attr)
                 .on('dblclick', () => {
-                    handleIncludedAttributesChange(includedAttributes.filter(a => a !== attr));
+                    if (includedAttributes.length > 3) {
+                        handleIncludedAttributesChange(includedAttributes.filter(a => a !== attr));
+                    }
                 });
-    });
+        });
 
-    // Click handler (for clicking canvas, not vertices)
-    svg.on('click', (event) => {
-      const target = event.target;
-      if (!target.classList.contains('vertex') && target.tagName !== 'text') {
-        const [x, y] = d3.pointer(event);
-        const distanceFromCenter = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
-        if (distanceFromCenter <= radius) { // Only process clicks within the chart
-          const radiusClicked = distanceFromCenter;
-          const maxRadius = radius;
-          const angle = Math.atan2(y - centerY, x - centerX) + Math.PI / 2 + Math.PI / attributes.length;
-          const normalizedAngle = angle < 0 ? angle + 2 * Math.PI : angle;
-          const index = Math.floor((normalizedAngle / (2 * Math.PI)) * attributes.length) % attributes.length;
-          const value = Math.min(Math.max((radiusClicked / maxRadius) * 100, 0), 100);
+        // Click handler (for clicking canvas, not vertices)
+        svg.on('click', (event) => {
+            const target = event.target;
+            if (!target.classList.contains('vertex') && target.tagName !== 'text') {
+                const [x, y] = d3.pointer(event);
+                const distanceFromCenter = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+                if (distanceFromCenter <= radius) { // Only process clicks within the chart
+                    const radiusClicked = distanceFromCenter;
+                    const maxRadius = radius;
+                    const angle = Math.atan2(y - centerY, x - centerX) + Math.PI / 2 + Math.PI / attributes.length;
+                    const normalizedAngle = angle < 0 ? angle + 2 * Math.PI : angle;
+                    const index = Math.floor((normalizedAngle / (2 * Math.PI)) * attributes.length) % attributes.length;
+                    const value = Math.min(Math.max((radiusClicked / maxRadius) * 100, 0), 100);
 
-          const attributeName = attributes[index];
-          setAttributeValues(prev => ({
-            ...prev,
-            [attributeName]: Math.round(value)
-          }));
-          updateUserData({ ...userData.Attributes, [attributeName]: { ...userData.Attributes[attributeName], score: Math.round(value) } });
-        }
-      }
-    })
-}, [attributeValues, userData, includedAttributes, updateUserData]);
+                    const attributeName = attributes[index];
+                    setAttributeValues(prev => ({
+                        ...prev,
+                        [attributeName]: Math.round(value)
+                    }));
+                    updateUserData({ ...userData.Attributes, [attributeName]: { ...userData.Attributes[attributeName], score: Math.round(value) } });
+                }
+            }
+        })
+    }, [attributeValues, userData, includedAttributes, updateUserData]);
 
-return (
-    <div className="radar-chart-container">
-        <canvas ref={canvasRef} width={500} height={500} style={{ position: 'absolute' }} />
-        <svg ref={svgRef} style={{ position: 'absolute' }}></svg>
-    </div>
-);
+    return (
+        <div className="radar-chart-container">
+            <canvas ref={canvasRef} width={500} height={500} style={{ position: 'absolute' }} />
+            <svg ref={svgRef} style={{ position: 'absolute' }}></svg>
+        </div>
+    );
 
 };
 
