@@ -1,0 +1,70 @@
+import React, { useState, useEffect } from 'react';
+import useTravelRecommenderStore from '../../../store/travelRecommenderStore';
+import { Modal, Form, Button } from 'react-bootstrap';
+
+const EditDimensionsPopup = ({ onClose }) => {
+    const { userData, setUserData } = useTravelRecommenderStore();
+    const [includedAttributes, setIncludedAttributes] = useState([]);
+
+    useEffect(() => {
+        // Initialize with current included attributes based on weight > 0
+        const initialIncludedAttrs = Object.keys(userData.Attributes).filter(
+            attr => userData.Attributes[attr].weight > 0
+        );
+        setIncludedAttributes(initialIncludedAttrs);
+    }, [userData.Attributes]);
+
+    const handleSave = () => {
+        const updatedAttributes = Object.fromEntries(
+            Object.entries(userData.Attributes).map(([attr, data]) => [
+                attr,
+                {
+                    ...data,
+                    weight: includedAttributes.includes(attr) ?  1 : 0
+                }
+            ])
+        );
+        setUserData({ ...userData, Attributes: updatedAttributes });
+        onClose();
+    };
+
+    const handleCheckboxChange = (attr) => {
+        setIncludedAttributes(prev =>
+            prev.includes(attr) ? prev.filter(a => a !== attr) : [...prev, attr]
+        );
+    };
+
+    return (
+        <>
+            <Modal.Header closeButton style={{ backgroundColor: '#193D4B', borderBottom: 'none' }}>
+                <Modal.Title style={{ color: 'white' }}>Edit Dimensions</Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{ backgroundColor: '#193D4B', maxHeight: '70vh', overflowY: 'auto' }}>
+                <Form>
+                    {Object.keys(userData.Attributes).map((attr) => (
+                        <Form.Check
+                            key={attr}
+                            type="checkbox"
+                            id={`checkbox-${attr}`}
+                            label={attr}
+                            checked={includedAttributes.includes(attr)}
+                            onChange={() => handleCheckboxChange(attr)}
+                            style={{ color: 'white' }}
+                            className="mb-2"
+                        />
+                    ))}
+                </Form>
+            </Modal.Body>
+            <Modal.Footer style={{ backgroundColor: '#193D4B', borderTop: 'none' }}>
+                <Button variant="secondary" onClick={onClose}>
+                    Cancel
+                </Button>
+                <Button variant="primary" onClick={handleSave}>
+                    Save
+                </Button>
+            </Modal.Footer>
+        </>
+    );
+};
+
+export default EditDimensionsPopup;
