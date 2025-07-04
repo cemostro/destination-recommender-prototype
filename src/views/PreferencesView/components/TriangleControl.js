@@ -163,6 +163,7 @@ const TriangleControl = ({ weights, setWeights, point, setPoint }) => {
         .attr('font-size', 12)
         .attr('fill', '#ffffff')
         .attr('font-family', "'Inter', sans-serif")
+        .attr('cursor' , 'default')
         .text(param);
     });
 

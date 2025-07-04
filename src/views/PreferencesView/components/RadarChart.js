@@ -218,6 +218,7 @@ const RadarChart = () => {
                 .attr('font-size', 14)
                 .attr('font-family', "'Inter', sans-serif")
                 .attr('fill', '#ffffff')
+                .attr('cursor', 'pointer')
                 .text(attr)
                 .on('dblclick', () => {
                     if (includedAttributes.length > 3) {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Select, { components } from 'react-select';
 import "../../../styles/PresetSelect.css";
 
@@ -53,16 +53,28 @@ const CustomOption = (props) => {
 
 // Custom ValueContainer component
 const CustomValueContainer = ({ children, ...props }) => {
+  const {handleOpenChange} = props.selectProps;
   const { getValue } = props;
   const selectedValue = getValue();
   return (
     <components.ValueContainer {...props}>
-      {selectedValue.length > 0 ? <CustomValue {...props} data={selectedValue[0]} /> : children}
+      <div onClick={handleOpenChange}>
+        {selectedValue.length > 0 ? <CustomValue {...props} data={selectedValue[0]} /> : children}
+      </div>
     </components.ValueContainer>
   );
 };
 
 const PresetSelect = ({ label, value, onChange, className }) => {
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleCloseMenu = () => setIsMenuOpen(false)
+  const handleOpenMenu = () => setIsMenuOpen(true)
+
+  const handleOpenChange = (e) => {
+    setIsMenuOpen(!isMenuOpen);
+  }
 
   const options = [
     {
@@ -148,6 +160,11 @@ const PresetSelect = ({ label, value, onChange, className }) => {
         components={{ Option: CustomOption, SingleValue: CustomValue, ValueContainer: CustomValueContainer }}
         placeholder="Select a journey style"
         isSearchable={false}
+        onMenuClose={handleCloseMenu}
+        onMenuOpen={handleOpenMenu}
+        menuIsOpen={isMenuOpen}
+        openMenuOnClick={false}
+        handleOpenChange={handleOpenChange}
       />
     </div>
   );

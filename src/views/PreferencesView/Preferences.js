@@ -23,7 +23,7 @@ const presets = [
 
 const Preferences = () => {
   const { userData, setUserData } = useTravelRecommenderStore();
-  const [selectedPreset, setSelectedPreset] = useState('');
+  const [selectedPreset, setSelectedPreset] = useState('balanced');
   const [key, setKey] = useState('advanced');
 
   const [algorithmWeights, setAlgorithmWeights] = useState([33.33, 33.33, 33.34]);
