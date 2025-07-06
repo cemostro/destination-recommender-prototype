@@ -3,30 +3,31 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles/App.css";
 import TravelRecommender from "./views/GeneralView/TravelRecommender";
 import LoadCountriesTask from "./tasks/LoadCountriesTask";
+import LoadCountriesFromCSV from "./tasks/LoadCountriesFromCSV";
 import Loading from "./views/GeneralView/Loading";
 import useTravelRecommenderStore from "./store/travelRecommenderStore";
 
 const App = () => {
-  const [fileRetrieved, setFileRetrieved] = useState([]);
+  const [fileRetrievedCSV, setFileRetrievedCSV] = useState([]);
   const { countries, setCountries, setResults, userData } = useTravelRecommenderStore();
-  
-  const load = () => {
-    const loadCountriesTask = new LoadCountriesTask();
-    loadCountriesTask.load(setFileRetrieved);
+
+  const loadFromCSV = () => {
+    const loadCountriesTask = new LoadCountriesFromCSV();
+    loadCountriesTask.load(setFileRetrievedCSV);
   };
   const calculateScores = () => {
-    if (fileRetrieved.length > 0) {
-      const loadCountriesTask = new LoadCountriesTask();
+    if (fileRetrievedCSV.length > 0) {
+      const loadCountriesTask = new LoadCountriesFromCSV();
       loadCountriesTask.processCountries(
-        fileRetrieved,
+        fileRetrievedCSV,
         userData,
         setCountries,
         setResults
       );
     }
   };
-  useEffect(load, []);
-  useEffect(calculateScores, [userData, fileRetrieved, setCountries, setResults]);
+  useEffect(loadFromCSV, []);
+  useEffect(calculateScores, [userData, fileRetrievedCSV, setCountries, setResults]);
 
   return (
     <div style={{ height: "100vh" }}>

@@ -24,7 +24,7 @@ const presets = [
 const Preferences = () => {
   const { userData, setUserData } = useTravelRecommenderStore();
   const [selectedPreset, setSelectedPreset] = useState('balanced');
-  const [key, setKey] = useState('advanced');
+  const [key, setKey] = useState('radar');
 
   const [algorithmWeights, setAlgorithmWeights] = useState([33.33, 33.33, 33.34]);
   const [point, setPoint] = useState({ x: 200, y: 185 });
@@ -105,13 +105,28 @@ const Preferences = () => {
       <hr />
       <Row className="content-row">
         <Col xs={6} style={{ borderRight: "1px solid rgba(255, 255, 255, 0.25)" }}>
-          <p style={{ textAlign: "left" }}>Craft your travel taste map:</p>
-          <div className="taste-map-placeholder">
-            <RadarChart/>
-          </div>
-          <div className="settings-button-placeholder">
-            <EditDimensionsButton />
-          </div>
+          <Tabs
+            activeKey={key}
+            id="mode"
+            onSelect={(k) => { setKey(k); setUserData({ ...userData, PresetType: [] }); }}
+            className="mb-3"
+          >
+            <Tab eventKey="preset" title="Presets">
+              <PresetTypesContainer />
+            </Tab>
+            <Tab eventKey="slider" title="Preference Sliders">
+              <CustomizationContainer />
+            </Tab>
+            <Tab eventKey="radar" title="Taste Map">
+              <p style={{ textAlign: "left" }}>Craft your travel taste map:</p>
+              <div className="taste-map-placeholder">
+                <RadarChart />
+              </div>
+              <div className="settings-button-placeholder">
+                <EditDimensionsButton />
+              </div>
+            </Tab>
+          </Tabs>
         </Col>
         <Col xs={6} className="right-column">
           <p style={{ textAlign: "left" }}>Choose your journey style:</p>
