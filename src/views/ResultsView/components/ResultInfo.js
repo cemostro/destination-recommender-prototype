@@ -4,6 +4,7 @@ import { DetailScores } from "./DetailScores";
 import { NoviceScores } from "./NoviceScores";
 import { PieChartComponent } from "./PieChartComponent";
 import { TravelMonthsComponent } from "./TravelMonthsComponent";
+import { RadarChartComparison } from "./RadarChartComparison";
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 
 const ResultInfo = ({ country, label }) => {
@@ -51,6 +52,13 @@ const ResultInfo = ({ country, label }) => {
       </p>
       <hr />
       <TravelMonthsComponent countryName={country.region} travelMonths={country.travelMonths} />
+      <hr />
+      <RadarChartComparison
+      scores={Object.keys(country.qualifications)?.map((key) => ({
+              name: key,
+              value: country.qualifications[key],
+            }))}
+      />
       <hr />
       {userData.PresetType.length === 0 ? (
         <>
