@@ -103,7 +103,8 @@ export const RadarChartComparison = ({ scores }) => {
             ctx[i === 0 ? 'moveTo' : 'lineTo'](point.x, point.y);
         });
         ctx.closePath();
-        ctx.fillStyle = '#808080';
+        // 808080 with 25% opacity
+        ctx.fillStyle = d3.color('#808080').copy({ opacity: 0.25 }).toString();
         ctx.fill();
 
         // Draw user polygon with 25% opacity colors
@@ -185,6 +186,30 @@ export const RadarChartComparison = ({ scores }) => {
             ctx.fill();
             
         });
+
+        // Draw borders
+        // Destination polygon border (solid gray)
+        ctx.beginPath();
+        destPoints.forEach((point, i) => {
+            ctx[i === 0 ? 'moveTo' : 'lineTo'](point.x, point.y);
+        });
+        ctx.closePath();
+        ctx.strokeStyle = '#808080';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([]); // Solid line
+        ctx.stroke();
+
+        // User polygon border (dashed, colored)
+        ctx.beginPath();
+        userPoints.forEach((point, i) => {
+            ctx[i === 0 ? 'moveTo' : 'lineTo'](point.x, point.y);
+        });
+        ctx.closePath();
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]); // Dashed line
+        ctx.stroke();
+
 
         // SVG elements (grid, axes, labels)
         svg.append('rect')
