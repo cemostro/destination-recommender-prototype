@@ -1,14 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import * as d3 from 'd3';
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 import { COLORS } from '../../../data/constantData';
+import "../../../styles/RadarChartComparison.css";
 
 export const RadarChartComparison = ({ scores }) => {
 
+    const canvasRef = useRef(null);
     const svgRef = useRef(null);
     const width = 300;
     const height = 300;
-    const radius = 120;
+    const radius = 100;
     const centerX = width / 2;
     const centerY = height / 2;
 
@@ -17,174 +19,219 @@ export const RadarChartComparison = ({ scores }) => {
         var key = attrName.charAt(0).toUpperCase() + attrName.slice(1);
         return userData.Attributes[key];
     };
-    const attributes = scores.filter((entry) => getUserData(entry.name).weight !== 0)
-    const attributeNames = attributes.map(attr => attr.name);
 
-    const destValues = attributes.map(attr => attr.value);
-    const userValues = attributes.map(attr => getUserData(attr.name).score);
+    const attributes = useMemo(() => {
+        return scores.filter((entry) => getUserData(entry.name).weight !== 0);
+    }, [scores, userData.Attributes]);
+
+    const attributeNames = useMemo(() => {
+        return attributes.map(attr => attr.name);
+    }, [attributes]);
+
+    const destValues = useMemo(() => {
+        return attributes.map(attr => attr.value);
+    }, [attributes]);
+
+    const userValues = useMemo(() => {
+        return attributes.map(attr => getUserData(attr.name).score);
+    }, [attributes, userData.Attributes]);
+
+    const overlapValues = useMemo(() => {
+        return attributes.map(attr => {
+            const userScore = getUserData(attr.name).score;
+            const destScore = attr.value;
+            return Math.min(userScore, destScore);
+        });
+    }, [attributes, userData.Attributes]);
 
 
     useEffect(() => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
         const svg = d3.select(svgRef.current)
             .attr('width', width)
-            .attr('height', height)
-            .attr('viewBox', `0 0 ${width} ${height}`)
-            .attr('preserveAspectRatio', 'xMidYMid meet');
-
-        const angles = d3.range(0, 2 * Math.PI, 2 * Math.PI / scores.filter((entry) => getUserData(entry.name).weight !== 0).length);
+            .attr('height', height);
 
         // Clear previous content
+        ctx.clearRect(0, 0, width, height);
         svg.selectAll('*').remove();
 
         // Background
-        svg.append('rect')
-            .attr('width', width)
-            .attr('height', height)
-            .attr('fill', '#f0f0f0');
+        // ctx.fillStyle = '#f0f0f0';
+        // ctx.fillRect(0, 0, width, height);
 
-        // Draw axes
-        svg.selectAll('.axis')
-            .data(angles)
-            .enter()
-            .append('line')
-            .attr('class', 'axis')
-            .attr('x1', centerX)
-            .attr('y1', centerY)
-            .attr('x2', (d) => centerX + radius * Math.cos(d))
-            .attr('y2', (d) => centerY + radius * Math.sin(d))
-            .attr('stroke', '#ccc')
-            .attr('stroke-width', 1);
-
-        // Draw concentric circles
-        const levels = 5;
-        for (let i = 1; i <= levels; i++) {
-            svg.append('circle')
-                .attr('cx', centerX)
-                .attr('cy', centerY)
-                .attr('r', (radius / levels) * i)
-                .attr('fill', 'none')
-                .attr('stroke', '#ccc')
-                .attr('stroke-width', 0.5);
-        }
-
-        // Prepare data
-        const attributes = scores.filter((entry) => getUserData(entry.name).weight !== 0)
-        const attributeNames = attributes.map(attr => attr.name);
-
-        const destValues = attributes.map(attr => attr.value);
-        const userValues = attributes.map(attr => getUserData(attr.name).score);
-
-        // Function to compute coordinates
-        const getCoordinates = (values) =>
-            values.map((value, i) => ({
-                x: centerX + (value / 100) * radius * Math.cos(angles[i] - Math.PI / 2),
-                y: centerY + (value / 100) * radius * Math.sin(angles[i] - Math.PI / 2),
-            }));
-
-        const userCoords = getCoordinates(userValues);
-        const destCoords = getCoordinates(destValues);
-
-        // User data polygon (25% opacity)
-        svg.append('path')
-            .datum(userCoords)
-            .attr('fill', 'none') // Filled later with pattern for overlap
-            .attr('stroke', 'black')
-            .attr('stroke-width', 1)
-            .attr('d', d3.line()
-                .x(d => d.x)
-                .y(d => d.y)
-                .curve(d3.curveLinearClosed)(userCoords));
-
-        // Destination data polygon (gray)
-        svg.append('path')
-            .datum(destCoords)
-            .attr('fill', '#808080')
-            .attr('fill-opacity', 0.3)
-            .attr('stroke', '#666')
-            .attr('stroke-width', 1)
-            .attr('d', d3.line()
-                .x(d => d.x)
-                .y(d => d.y)
-                .curve(d3.curveLinearClosed)(destCoords));
-
-        // Create pattern for overlap (using user colors at 100% opacity)
-        svg.selectAll('.overlap-pattern')
-            .data(attributeNames)
-            .enter()
-            .append('pattern')
-            .attr('id', d => `pattern-${d}`)
-            .attr('patternUnits', 'userSpaceOnUse')
-            .attr('width', width)
-            .attr('height', height)
-            .append('rect')
-            .attr('width', width)
-            .attr('height', height)
-        // .attr('fill', d => topics[d]);
-
-        // Compute overlap coordinates
-        const overlapCoords = userCoords.map((userPoint, i) => {
-            const destPoint = destCoords[i];
-            const minX = Math.max(userPoint.x, destPoint.x);
-            const maxX = Math.min(userPoint.x, destPoint.x);
-            const minY = Math.max(userPoint.y, destPoint.y);
-            const maxY = Math.min(userPoint.y, destPoint.y);
+        // Calculate points for user and destination
+        const userPoints = attributeNames.map((_, i) => {
+            const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
+            const r = (userValues[i] / 100) * radius;
             return {
-                x: (minX + maxX) / 2,
-                y: (minY + maxY) / 2,
+                x: centerX + r * Math.cos(angle),
+                y: centerY + r * Math.sin(angle),
+                color: d3.color(COLORS[i % COLORS.length]).copy({ opacity: 0.01 }),
+                value: userValues[i],
+                angle
             };
         });
 
-        // Overlap polygon (using pattern for topic colors at 100% opacity)
-        svg.append('path')
-            .datum(overlapCoords)
-            .attr('fill', 'url(#pattern-Culture)') // Default to first topic, will be masked
-            .attr('opacity', 1)
-            .attr('stroke', 'none')
-            .attr('d', d3.line()
-                .x(d => d.x)
-                .y(d => d.y)
-                .curve(d3.curveLinearClosed)(overlapCoords));
-
-        // Mask overlap with correct topic colors based on max overlap
-        const maxOverlapIndices = userCoords.map((userPoint, i) => {
-            const userVal = userValues[i];
-            const destVal = destValues[i];
-            return userVal >= destVal ? i : -1; // Index of topic with max value at each point
+        const destPoints = attributeNames.map((_, i) => {
+            const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
+            const r = (destValues[i] / 100) * radius;
+            return {
+                x: centerX + r * Math.cos(angle),
+                y: centerY + r * Math.sin(angle),
+                color: d3.color('#808080'),
+                value: destValues[i],
+                angle
+            };
         });
 
-        // Apply mask or adjust fill dynamically (simplified approach)
-        svg.selectAll('.overlap-path')
-            .data([overlapCoords])
-            .enter()
-            .append('path')
-            .attr('class', 'overlap-path')
-            .attr('d', d3.line()
-                .x(d => d.x)
-                .y(d => d.y)
-                .curve(d3.curveLinearClosed))
-            .attr('fill', () => {
-                const dominantTopic = attributeNames[maxOverlapIndices.findIndex(i => i !== -1)];
-                return `url(#pattern-${dominantTopic})`;
-            })
-            .attr('opacity', 1)
-            .attr('stroke', 'none');
+        const overlapPoints = attributeNames.map((_, i) => {
+            const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
+            const r = (overlapValues[i] / 100) * radius;
+            return {
+                x: centerX + r * Math.cos(angle),
+                y: centerY + r * Math.sin(angle),
+                color: d3.color(COLORS[i % COLORS.length]),
+                value: overlapValues[i],
+                angle
+            };
+        });
 
-        // Labels
-        svg.selectAll('.label')
-            .data(attributeNames)
-            .enter()
-            .append('text')
-            .attr('class', 'label')
-            .attr('x', (d, i) => centerX + 1.1 * radius * Math.cos(angles[i] - Math.PI / 2))
-            .attr('y', (d, i) => centerY + 1.1 * radius * Math.sin(angles[i] - Math.PI / 2))
-            .attr('text-anchor', 'middle')
-            .attr('dy', '0.35em')
-            .attr('fill', '#333')
-            .text(d => d);
+        // Draw destination polygon (gray base)
+        ctx.beginPath();
+        destPoints.forEach((point, i) => {
+            ctx[i === 0 ? 'moveTo' : 'lineTo'](point.x, point.y);
+        });
+        ctx.closePath();
+        ctx.fillStyle = '#808080';
+        ctx.fill();
 
-    }, [userData, scores]);
+        // Draw user polygon with 25% opacity colors
+        attributeNames.forEach((_, i) => {
+            const userPoint = userPoints[i];
+            const prevUserPoint = userPoints[i === 0 ? userPoints.length - 1 : i - 1];
+            const nextUserPoint = userPoints[i === userPoints.length - 1 ? 0 : i + 1];
+            const destPoint = destPoints[i];
+            const prevDestPoint = destPoints[i === 0 ? destPoints.length - 1 : i - 1];
+            const nextDestPoint = destPoints[i === destPoints.length - 1 ? 0 : i + 1];
+            const overlapPoint = overlapPoints[i];
+            const prevOverlapPoint = overlapPoints[i === 0 ? overlapPoints.length - 1 : i - 1];
+            const nextOverlapPoint = overlapPoints[i === overlapPoints.length - 1 ? 0 : i + 1];
+
+            const halfwayUserPrev = {
+                x: (prevUserPoint.x + userPoint.x) / 2,
+                y: (prevUserPoint.y + userPoint.y) / 2,
+                color: d3.interpolateRgb(prevUserPoint.color, userPoint.color)(0.5)
+            };
+            const halfwayUserNext = {
+                x: (userPoint.x + nextUserPoint.x) / 2,
+                y: (userPoint.y + nextUserPoint.y) / 2,
+                color: d3.interpolateRgb(userPoint.color, nextUserPoint.color)(0.5)
+            };
+
+            const quadPoints = [
+                { x: centerX, y: centerY, color: d3.color('rgba(255, 255, 255, 1)') }, // Center
+                halfwayUserPrev, // Halfway to prev
+                { x: userPoint.x, y: userPoint.y, color: userPoint.color }, // Vertex
+                halfwayUserNext // Halfway to next
+            ];
+
+            // Draw quadrilateral
+            ctx.beginPath();
+            ctx.moveTo(quadPoints[0].x, quadPoints[0].y);
+            quadPoints.forEach((p, j) => {
+                if (j > 0) ctx.lineTo(p.x, p.y);
+            });
+            ctx.closePath();
+
+            // Gradient from center to maximum axis position
+            const maxVertexX = centerX + radius * Math.cos(userPoint.angle);
+            const maxVertexY = centerY + radius * Math.sin(userPoint.angle);
+            const gradient = ctx.createLinearGradient(
+                quadPoints[0].x, quadPoints[0].y, // Center
+                maxVertexX, maxVertexY // Maximum axis position (radius 200)
+            );
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            gradient.addColorStop(1, userPoint.color.toString());
+
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // Draw overlap gradient - should be solid fill, no white gradient in middle
+            const halfwayOverlapPrev = {
+                x: (prevOverlapPoint.x + overlapPoint.x) / 2,
+                y: (prevOverlapPoint.y + overlapPoint.y) / 2,
+                color: d3.interpolateRgb(prevOverlapPoint.color, overlapPoint.color)(0.5)
+            };
+            const halfwayOverlapNext = {
+                x: (overlapPoint.x + nextOverlapPoint.x) / 2,
+                y: (overlapPoint.y + nextOverlapPoint.y) / 2,
+                color: d3.interpolateRgb(overlapPoint.color, nextOverlapPoint.color)(0.5)
+            };
+            const overlapQuadPoints = [
+                { x: centerX, y: centerY }, // Center
+                halfwayOverlapPrev, // Halfway to prev
+                { x: overlapPoint.x, y: overlapPoint.y}, // Vertex
+                halfwayOverlapNext // Halfway to next
+            ];
+            ctx.beginPath();
+            ctx.moveTo(overlapQuadPoints[0].x, overlapQuadPoints[0].y);
+            overlapQuadPoints.forEach((p, j) => {
+                if (j > 0) ctx.lineTo(p.x, p.y);
+            }
+            );
+            ctx.closePath();
+            ctx.fillStyle = overlapPoint.color.toString();
+            ctx.fill();
+            
+        });
+
+        // SVG elements (grid, axes, labels)
+        svg.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', width)
+            .attr('height', height)
+            .attr('fill', 'none');
+
+        [0.2, 0.4, 0.6, 0.8, 1].forEach((scale) => {
+            svg.append('path')
+                .attr('d', () => {
+                    const points = attributeNames.map((_, i) => {
+                        const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
+                        const r = scale * radius;
+                        const x = centerX + r * Math.cos(angle);
+                        const y = centerY + r * Math.sin(angle);
+                        return `${i === 0 ? 'M' : 'L'} ${x},${y}`;
+                    });
+                    return points.join(' ') + ' Z';
+                })
+                .attr('stroke', '#CCCCCC')
+                .attr('stroke-width', 1)
+                .attr('fill', 'none');
+        });
+
+        attributeNames.forEach((_, i) => {
+            const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
+            const x = centerX + 1.25 * radius * Math.cos(angle);
+            const y = centerY + 1.1 * radius * Math.sin(angle);
+            svg.append('text')
+                .attr('x', x)
+                .attr('y', y)
+                .attr('text-anchor', 'middle')
+                .attr('dy', '0.35em')
+                .attr('fill', '#333333')
+                .attr('font-size', 14)
+                .attr('font-family', 'Inter', 'sans-serif')
+                .text(attributeNames[i]);
+        });
+
+    }, [userValues, destValues, attributeNames]);
 
     return (
-        <svg ref={svgRef}></svg>
+        <div className="radar-chart-comparison-container">
+            <canvas ref={canvasRef} width={300} height={300} style={{ position: 'absolute' }} />
+            <svg ref={svgRef} style={{ position: 'absolute' }}></svg>
+        </div>
     );
 }

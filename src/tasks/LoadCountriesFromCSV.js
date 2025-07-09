@@ -228,7 +228,6 @@ class LoadCountriesFromCSV {
     return 100 - Math.abs(userScore - countryScore);
   };
   calculateAttributeScoreAverage = (attributes) => {
-    console.log("attributes", attributes);
     let totalScore = 0;
     let totalWeight = 0;
     for (const attribute in attributes) {
