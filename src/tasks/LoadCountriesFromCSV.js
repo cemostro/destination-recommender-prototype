@@ -4,7 +4,7 @@ import mapData from "../data/regions.json";
 class LoadCountriesFromCSV {
   allResults = [];
   countryScoresUrl =
-    "https://raw.githubusercontent.com/assalism/travel-data/main/regionmodel.csv";
+    "/data/regionmodel.csv";
   mapCountries = mapData.features;
   load = (setFileRetrieved) => {
     papa.parse(this.countryScoresUrl, {

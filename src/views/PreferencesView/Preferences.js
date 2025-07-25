@@ -12,6 +12,7 @@ import TriangleControl from "./components/TriangleControl";
 import WeightInputs from "./components/WeightInputs";
 import RadarChart from "./components/RadarChart";
 import EditDimensionsButton from "./components/EditDimensionsButton";
+import Compass from "./components/Compass";
 
 
 const presets = [
@@ -137,7 +138,7 @@ const Preferences = () => {
             />
           </div>
           <div className="journey-style-placeholder-2">
-            <TriangleControl
+            {/* <TriangleControl
               weights={algorithmWeights}
               setWeights={handleWeightChange}
               point={point}
@@ -145,7 +146,10 @@ const Preferences = () => {
                 setPoint({ x, y });
                 updateWeightsFromPoint(x, y);
               }}
-            />
+            /> */}
+            <Compass onChange={(pos) => {
+              console.log("Compass position changed:", pos);
+            }} />
           </div>
           <div className="journey-style-placeholder-3">
             <WeightInputs

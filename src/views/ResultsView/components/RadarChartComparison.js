@@ -205,7 +205,7 @@ export const RadarChartComparison = ({ scores }) => {
             ctx[i === 0 ? 'moveTo' : 'lineTo'](point.x, point.y);
         });
         ctx.closePath();
-        ctx.strokeStyle = '#FFFFFF';
+        ctx.strokeStyle = '#193D4B';
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 5]); // Dashed line
         ctx.stroke();
