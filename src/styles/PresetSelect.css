@@ -6,6 +6,9 @@
 
 .select-react-select {
   margin-bottom: 15px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 .option-title {
@@ -27,4 +30,18 @@
 /* Ensure pointer cursor and prevent text selection */
 .select-react-select{
   user-select: none; /* Prevent text selection */
+}
+
+.surprise-button {
+  background-color: #facc15;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: transform 0.1s;
+}
+
+.surprise-button:hover {
+  transform: scale(1.05);
 }

@@ -8,27 +8,38 @@ import AdditionalInfo from "./components/AdditionalInfo";
 import TravelMonths from "./components/TravelMonths";
 import useTravelRecommenderStore from "../../store/travelRecommenderStore";
 import PresetSelect from "./components/PresetSelect";
+import PresetSelectCompass from "./components/PresetSelectCompass";
 import TriangleControl from "./components/TriangleControl";
 import WeightInputs from "./components/WeightInputs";
 import RadarChart from "./components/RadarChart";
 import EditDimensionsButton from "./components/EditDimensionsButton";
 import Compass from "./components/Compass";
+import NumericControls from "./components/NumericControls";
 
+
+// const presets = [
+//   { value: 'balanced', weights: [33.33, 33.33, 33.34] },
+//   { value: 'personalized', weights: [100, 0, 0] },
+//   { value: 'explorer', weights: [30, 0, 70] },
+//   { value: 'classic', weights: [30, 70, 0] },
+// ];
 
 const presets = [
-  { value: 'balanced', weights: [33.33, 33.33, 33.34] },
-  { value: 'personalized', weights: [100, 0, 0] },
-  { value: 'explorer', weights: [30, 0, 70] },
-  { value: 'classic', weights: [30, 70, 0] },
+  { value: 'personalized', weights: { x: 0, y: 0 } },
+  { value: 'adventurous-hidden', weights: { x: -0.7, y: 0.7 } },
+  { value: 'adventurous-popular', weights: { x: 0.7, y: 0.7 } },
+  { value: 'relaxing-popular', weights: { x: 0.7, y: -0.7 } },
+  { value: 'relaxing-hidden', weights: { x: -0.7, y: -0.7 } },
 ];
 
 const Preferences = () => {
   const { userData, setUserData } = useTravelRecommenderStore();
-  const [selectedPreset, setSelectedPreset] = useState('balanced');
+  const [selectedPreset, setSelectedPreset] = useState('personalized');
   const [key, setKey] = useState('radar');
 
   const [algorithmWeights, setAlgorithmWeights] = useState([33.33, 33.33, 33.34]);
   const [point, setPoint] = useState({ x: 200, y: 185 });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
 
 
   const handlePresetChange = (presetName) => {
@@ -36,11 +47,22 @@ const Preferences = () => {
     if (presetName !== 'custom') {
       const preset = presets.find(p => p.value === presetName);
       if (preset) {
-        const newWeights = [...preset.weights];
-        setAlgorithmWeights(newWeights.map(v => Math.round(v * 100) / 100));
-        updatePointFromWeights(newWeights);
+        setPosition(preset.weights);
       }
     }
+    // if (presetName !== 'custom') {
+    //   const preset = presets.find(p => p.value === presetName);
+    //   if (preset) {
+    //     const newWeights = [...preset.weights];
+    //     setAlgorithmWeights(newWeights.map(v => Math.round(v * 100) / 100));
+    //     updatePointFromWeights(newWeights);
+    //   }
+    // }
+  };
+
+  const handlePositionChange = (newPosition) => {
+    setPosition(newPosition);
+    setSelectedPreset('custom');
   };
 
   const updatePointFromWeights = (newWeights) => {
@@ -131,10 +153,15 @@ const Preferences = () => {
         </Col>
         <Col xs={6} className="right-column">
           <p style={{ textAlign: "left" }}>Choose your journey style:</p>
-          <div className="journey-style-placeholder-1" style={{ width: "300px" }}>
-            <PresetSelect
+          <div className="journey-style-placeholder-1" >
+            <PresetSelectCompass
               value={selectedPreset}
               onChange={(e) => handlePresetChange(e)}
+              onSurprise={() => {
+                const randomX = (Math.random() * 2 - 1).toFixed(2);
+                const randomY = (Math.random() * 2 - 1).toFixed(2);
+                handlePositionChange({ x: randomX, y: randomY });  
+              }}
             />
           </div>
           <div className="journey-style-placeholder-2">
@@ -147,15 +174,14 @@ const Preferences = () => {
                 updateWeightsFromPoint(x, y);
               }}
             /> */}
-            <Compass onChange={(pos) => {
-              console.log("Compass position changed:", pos);
-            }} />
+            <Compass position={position} setPosition={handlePositionChange} />
           </div>
           <div className="journey-style-placeholder-3">
-            <WeightInputs
+            {/* <WeightInputs
               weights={algorithmWeights}
               handleWeightChange={handleWeightChange}
-            />
+            /> */}
+            <NumericControls position={position} onSetPosition={handlePositionChange} />
           </div>
         </Col>
       </Row>

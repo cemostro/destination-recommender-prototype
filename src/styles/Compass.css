@@ -5,7 +5,7 @@
   border-radius: 50%;
   background-color: #e5e7eb;
   border: 1px solid #9ca3af;
-  margin: 20px auto;
+  margin: 50px auto;
 }
 
 .compass-svg {
@@ -17,33 +17,51 @@
   cursor: pointer;
 }
 
+.compass-svg text {
+  font-family: sans-serif;
+  font-weight: bold;
+}
+
 .label {
   position: absolute;
   font-size: 12px;
   font-family: sans-serif;
-  color: #333;
+  color: #ffffff;
 }
 
 .label.top {
-  top: 6px;
+  top: -40px; /* move up */
   left: 50%;
   transform: translateX(-50%);
 }
 
 .label.bottom {
-  bottom: 6px;
+  bottom: -40px; /* move down */
   left: 50%;
   transform: translateX(-50%);
 }
 
 .label.left {
-  left: 6px;
+  left: -100px; /* move left */
   top: 50%;
   transform: translateY(-50%);
 }
 
 .label.right {
-  right: 6px;
+  right: -80px; /* move right */
   top: 50%;
   transform: translateY(-50%);
+}
+
+.sublabel {
+  font-size: 10px;
+  color: #ffffff;
+  margin-top: 2px;
+}
+
+.direction-label {
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE/Edge */
 }
