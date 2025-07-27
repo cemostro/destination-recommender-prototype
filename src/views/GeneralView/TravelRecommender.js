@@ -34,7 +34,7 @@ const TravelRecommender = () => {
           </div>
         </Col> */}
         {/* {rightColumnOpen && ( */}
-          <Col style={{ height: "100%" }}>
+          <Col style={{ height: "100%" }} className='right-column'>
             <Results activeResult={activeResult} />
           </Col>
         {/* )} */}
