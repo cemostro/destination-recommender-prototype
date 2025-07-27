@@ -34,7 +34,7 @@ const RadarChart = () => {
 
     const width = dimensions.width;
     const height = dimensions.height;
-    const radius = Math.min(width, height) * 0.35;
+    const radius = Math.min(width, height) * 0.38;
     const centerX = width / 2;
     const centerY = height / 2;
 

@@ -1,22 +1,39 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState, useLayoutEffect } from 'react';
 import * as d3 from 'd3';
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 import { COLORS } from '../../../data/constantData';
-import "../../../styles/RadarChartComparison.css";
+import '../../../styles/RadarChartComparison.css';
 
 export const RadarChartComparison = ({ scores }) => {
-
     const canvasRef = useRef(null);
     const svgRef = useRef(null);
-    const width = 300;
-    const height = 300;
-    const radius = 100;
+    const containerRef = useRef(null);
+    const { userData } = useTravelRecommenderStore();
+
+    const [dimensions, setDimensions] = useState({ width: 300, height: 300 });
+
+    useLayoutEffect(() => {
+        if (!containerRef.current) return;
+
+        const observer = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const { width, height } = entry.contentRect;
+                setDimensions({ width, height });
+            }
+        });
+
+        observer.observe(containerRef.current);
+
+        return () => observer.disconnect();
+    }, []);
+
+    const { width, height } = dimensions;
+    const radius = Math.min(width, height) * 0.32;
     const centerX = width / 2;
     const centerY = height / 2;
 
-    const { userData } = useTravelRecommenderStore();
     const getUserData = (attrName) => {
-        var key = attrName.charAt(0).toUpperCase() + attrName.slice(1);
+        const key = attrName.charAt(0).toUpperCase() + attrName.slice(1);
         return userData.Attributes[key];
     };
 
@@ -28,235 +45,124 @@ export const RadarChartComparison = ({ scores }) => {
         return attributes.map(attr => attr.name.charAt(0).toUpperCase() + attr.name.slice(1));
     }, [attributes]);
 
-    const destValues = useMemo(() => {
-        return attributes.map(attr => attr.value);
-    }, [attributes]);
-
-    const userValues = useMemo(() => {
-        return attributes.map(attr => getUserData(attr.name).score);
-    }, [attributes, userData.Attributes]);
-
-    const overlapValues = useMemo(() => {
-        return attributes.map(attr => {
-            const userScore = getUserData(attr.name).score;
-            const destScore = attr.value;
-            return Math.min(userScore, destScore);
-        });
-    }, [attributes, userData.Attributes]);
-
+    const userValues = useMemo(() => attributes.map(attr => getUserData(attr.name).score), [attributes, userData.Attributes]);
+    const destValues = useMemo(() => attributes.map(attr => attr.value), [attributes]);
+    const overlapValues = useMemo(() => attributes.map(attr => Math.min(getUserData(attr.name).score, attr.value)), [attributes, userData.Attributes]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
-        const svg = d3.select(svgRef.current)
-            .attr('width', width)
-            .attr('height', height);
+        const svg = d3.select(svgRef.current).attr('width', width).attr('height', height);
 
-        // Clear previous content
         ctx.clearRect(0, 0, width, height);
         svg.selectAll('*').remove();
 
-        // Background
-        // ctx.fillStyle = '#f0f0f0';
-        // ctx.fillRect(0, 0, width, height);
-
-        // Calculate points for user and destination
-        const userPoints = attributeNames.map((_, i) => {
+        const calcPoints = (values) => attributeNames.map((_, i) => {
             const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
-            const r = (userValues[i] / 100) * radius;
+            const r = (values[i] / 100) * radius;
             return {
                 x: centerX + r * Math.cos(angle),
                 y: centerY + r * Math.sin(angle),
-                color: d3.color(COLORS[i % COLORS.length]).copy({ opacity: 0.01 }),
-                value: userValues[i],
-                angle
+                angle,
+                color: d3.color(COLORS[i % COLORS.length])
             };
         });
 
-        const destPoints = attributeNames.map((_, i) => {
-            const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
-            const r = (destValues[i] / 100) * radius;
-            return {
-                x: centerX + r * Math.cos(angle),
-                y: centerY + r * Math.sin(angle),
-                color: d3.color('#808080'),
-                value: destValues[i],
-                angle
-            };
-        });
+        const userPoints = calcPoints(userValues);
+        const destPoints = calcPoints(destValues);
+        const overlapPoints = calcPoints(overlapValues);
 
-        const overlapPoints = attributeNames.map((_, i) => {
-            const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
-            const r = (overlapValues[i] / 100) * radius;
-            return {
-                x: centerX + r * Math.cos(angle),
-                y: centerY + r * Math.sin(angle),
-                color: d3.color(COLORS[i % COLORS.length]),
-                value: overlapValues[i],
-                angle
-            };
-        });
-
-        // Draw destination polygon (gray base)
-        ctx.beginPath();
-        destPoints.forEach((point, i) => {
-            ctx[i === 0 ? 'moveTo' : 'lineTo'](point.x, point.y);
-        });
-        ctx.closePath();
-        // 808080 with 25% opacity
-        ctx.fillStyle = d3.color('#808080').copy({ opacity: 0.25 }).toString();
-        ctx.fill();
-
-        // Draw user polygon with 25% opacity colors
-        attributeNames.forEach((_, i) => {
-            const userPoint = userPoints[i];
-            const prevUserPoint = userPoints[i === 0 ? userPoints.length - 1 : i - 1];
-            const nextUserPoint = userPoints[i === userPoints.length - 1 ? 0 : i + 1];
-            const destPoint = destPoints[i];
-            const prevDestPoint = destPoints[i === 0 ? destPoints.length - 1 : i - 1];
-            const nextDestPoint = destPoints[i === destPoints.length - 1 ? 0 : i + 1];
-            const overlapPoint = overlapPoints[i];
-            const prevOverlapPoint = overlapPoints[i === 0 ? overlapPoints.length - 1 : i - 1];
-            const nextOverlapPoint = overlapPoints[i === overlapPoints.length - 1 ? 0 : i + 1];
-
-            const halfwayUserPrev = {
-                x: (prevUserPoint.x + userPoint.x) / 2,
-                y: (prevUserPoint.y + userPoint.y) / 2,
-                color: d3.interpolateRgb(prevUserPoint.color, userPoint.color)(0.5)
-            };
-            const halfwayUserNext = {
-                x: (userPoint.x + nextUserPoint.x) / 2,
-                y: (userPoint.y + nextUserPoint.y) / 2,
-                color: d3.interpolateRgb(userPoint.color, nextUserPoint.color)(0.5)
-            };
-
-            const quadPoints = [
-                { x: centerX, y: centerY, color: d3.color('rgba(255, 255, 255, 1)') }, // Center
-                halfwayUserPrev, // Halfway to prev
-                { x: userPoint.x, y: userPoint.y, color: userPoint.color }, // Vertex
-                halfwayUserNext // Halfway to next
-            ];
-
-            // Draw quadrilateral
+        const drawPolygon = (points, color, dashed = false) => {
             ctx.beginPath();
-            ctx.moveTo(quadPoints[0].x, quadPoints[0].y);
-            quadPoints.forEach((p, j) => {
-                if (j > 0) ctx.lineTo(p.x, p.y);
-            });
+            points.forEach((p, i) => ctx[i === 0 ? 'moveTo' : 'lineTo'](p.x, p.y));
             ctx.closePath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.setLineDash(dashed ? [5, 5] : []);
+            ctx.stroke();
+        };
 
-            // Gradient from center to maximum axis position
-            const maxVertexX = centerX + radius * Math.cos(userPoint.angle);
-            const maxVertexY = centerY + radius * Math.sin(userPoint.angle);
-            const gradient = ctx.createLinearGradient(
-                quadPoints[0].x, quadPoints[0].y, // Center
-                maxVertexX, maxVertexY // Maximum axis position (radius 200)
-            );
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-            gradient.addColorStop(1, userPoint.color.toString());
-
-            ctx.fillStyle = gradient;
-            ctx.fill();
-
-            // Draw overlap gradient - should be solid fill, no white gradient in middle
-            const halfwayOverlapPrev = {
-                x: (prevOverlapPoint.x + overlapPoint.x) / 2,
-                y: (prevOverlapPoint.y + overlapPoint.y) / 2,
-                color: d3.interpolateRgb(prevOverlapPoint.color, overlapPoint.color)(0.5)
-            };
-            const halfwayOverlapNext = {
-                x: (overlapPoint.x + nextOverlapPoint.x) / 2,
-                y: (overlapPoint.y + nextOverlapPoint.y) / 2,
-                color: d3.interpolateRgb(overlapPoint.color, nextOverlapPoint.color)(0.5)
-            };
-            const overlapQuadPoints = [
-                { x: centerX, y: centerY }, // Center
-                halfwayOverlapPrev, // Halfway to prev
-                { x: overlapPoint.x, y: overlapPoint.y}, // Vertex
-                halfwayOverlapNext // Halfway to next
-            ];
+        const fillPolygon = (points, fillStyle) => {
             ctx.beginPath();
-            ctx.moveTo(overlapQuadPoints[0].x, overlapQuadPoints[0].y);
-            overlapQuadPoints.forEach((p, j) => {
-                if (j > 0) ctx.lineTo(p.x, p.y);
-            }
-            );
+            points.forEach((p, i) => ctx[i === 0 ? 'moveTo' : 'lineTo'](p.x, p.y));
             ctx.closePath();
-            ctx.fillStyle = overlapPoint.color.toString();
+            ctx.fillStyle = fillStyle;
             ctx.fill();
-            
+        };
+
+        userPoints.map(p => {
+            p.color = p.color.copy({ opacity: 0.3 });
+            return p;
+        }).forEach((p, i) => {
+            const prev = userPoints[(i - 1 + userPoints.length) % userPoints.length];
+            const next = userPoints[(i + 1) % userPoints.length];
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo((prev.x + p.x) / 2, (prev.y + p.y) / 2);
+            ctx.lineTo(p.x, p.y);
+            ctx.lineTo((p.x + next.x) / 2, (p.y + next.y) / 2);
+            ctx.closePath();
+            ctx.fillStyle = p.color.toString();
+            ctx.fill();
         });
 
-        // Draw borders
-        // Destination polygon border (solid gray)
-        ctx.beginPath();
-        destPoints.forEach((point, i) => {
-            ctx[i === 0 ? 'moveTo' : 'lineTo'](point.x, point.y);
+        fillPolygon(destPoints, d3.color('#808080').copy({ opacity: 0.25 }).toString());
+        overlapPoints.forEach((p, i) => {
+            const prev = overlapPoints[(i - 1 + overlapPoints.length) % overlapPoints.length];
+            const next = overlapPoints[(i + 1) % overlapPoints.length];
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo((prev.x + p.x) / 2, (prev.y + p.y) / 2);
+            ctx.lineTo(p.x, p.y);
+            ctx.lineTo((p.x + next.x) / 2, (p.y + next.y) / 2);
+            ctx.closePath();
+            ctx.fillStyle = p.color.toString();
+            ctx.fill();
         });
-        ctx.closePath();
-        ctx.strokeStyle = '#808080';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([]); // Solid line
-        ctx.stroke();
-
-        // User polygon border (dashed, colored)
-        ctx.beginPath();
-        userPoints.forEach((point, i) => {
-            ctx[i === 0 ? 'moveTo' : 'lineTo'](point.x, point.y);
-        });
-        ctx.closePath();
-        ctx.strokeStyle = '#193D4B';
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, 5]); // Dashed line
-        ctx.stroke();
 
 
-        // SVG elements (grid, axes, labels)
-        svg.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', width)
-            .attr('height', height)
-            .attr('fill', 'none');
+        drawPolygon(destPoints, '#808080');
+        drawPolygon(userPoints, '#ffffff', true);
 
-        [0.2, 0.4, 0.6, 0.8, 1].forEach((scale) => {
+        [0.2, 0.4, 0.6, 0.8, 1].forEach(scale => {
             svg.append('path')
-                .attr('d', () => {
-                    const points = attributeNames.map((_, i) => {
-                        const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
-                        const r = scale * radius;
-                        const x = centerX + r * Math.cos(angle);
-                        const y = centerY + r * Math.sin(angle);
-                        return `${i === 0 ? 'M' : 'L'} ${x},${y}`;
-                    });
-                    return points.join(' ') + ' Z';
-                })
-                .attr('stroke', '#CCCCCC')
+                .attr('d', attributeNames.map((_, i) => {
+                    const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
+                    const r = scale * radius;
+                    const x = centerX + r * Math.cos(angle);
+                    const y = centerY + r * Math.sin(angle);
+                    return `${i === 0 ? 'M' : 'L'} ${x},${y}`;
+                }).join(' ') + ' Z')
+                .attr('stroke', '#CCC')
                 .attr('stroke-width', 1)
                 .attr('fill', 'none');
         });
 
-        attributeNames.forEach((_, i) => {
+        attributeNames.forEach((name, i) => {
             const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
-            const x = centerX + 1.25 * radius * Math.cos(angle);
+            const x = centerX + 1.1 * radius * Math.cos(angle);
             const y = centerY + 1.1 * radius * Math.sin(angle);
+            const epsilon = 0.01;
+            const isMiddle = Math.abs(Math.abs(angle) - Math.PI / 2) < epsilon;
+            const align = isMiddle ? 'middle' : (angle < -Math.PI / 2 || angle > Math.PI / 2 ? 'end' : 'start');
+
             svg.append('text')
                 .attr('x', x)
                 .attr('y', y)
-                .attr('text-anchor', 'middle')
+                .attr('text-anchor', align)
                 .attr('dy', '0.35em')
                 .attr('fill', '#ffffff')
-                .attr('font-size', 14)
-                .attr('font-family', 'Inter', 'sans-serif')
-                .text(attributeNames[i]);
+                .attr('font-size', Math.max(10, radius * 0.08))
+                .attr('font-family', "'Inter', sans-serif")
+                .text(name);
         });
 
-    }, [userValues, destValues, attributeNames]);
+    }, [userValues, destValues, attributeNames, dimensions]);
 
     return (
-        <div className="radar-chart-comparison-container">
-            <canvas ref={canvasRef} width={300} height={300} style={{ position: 'absolute' }} />
+        <div className="radar-chart-comparison-container" ref={containerRef}>
+            <canvas ref={canvasRef} width={width} height={height} style={{ position: 'absolute' }} />
             <svg ref={svgRef} style={{ position: 'absolute' }}></svg>
         </div>
     );
-}
+};
