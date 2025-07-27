@@ -28,8 +28,9 @@
 }
 
 /* Ensure pointer cursor and prevent text selection */
-.select-react-select{
-  user-select: none; /* Prevent text selection */
+.select-react-select {
+  user-select: none;
+  /* Prevent text selection */
 }
 
 .surprise-button {
@@ -44,4 +45,14 @@
 
 .surprise-button:hover {
   transform: scale(1.05);
+}
+
+.reset-button {
+  background-color: rgb(71, 126, 243);
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: transform 0.1s;
 }

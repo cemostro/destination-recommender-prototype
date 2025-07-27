@@ -153,7 +153,7 @@ const Preferences = () => {
         </Col>
         <Col xs={6} className="right-column">
           <p style={{ textAlign: "left" }}>Choose your journey style:</p>
-          <div className="journey-style-placeholder-1" >
+          <div className="journey-style-placeholder-1"  >
             <PresetSelectCompass
               value={selectedPreset}
               onChange={(e) => handlePresetChange(e)}
@@ -161,6 +161,10 @@ const Preferences = () => {
                 const randomX = (Math.random() * 2 - 1).toFixed(2);
                 const randomY = (Math.random() * 2 - 1).toFixed(2);
                 handlePositionChange({ x: randomX, y: randomY });  
+              }}
+              onReset={() => {
+                setPosition({ x: 0, y: 0 });
+                setSelectedPreset('personalized');
               }}
             />
           </div>

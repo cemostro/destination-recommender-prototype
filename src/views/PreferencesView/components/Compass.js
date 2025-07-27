@@ -17,14 +17,25 @@ const Compass = ({ position, setPosition }) => {
 
         const clampedR = Math.min(r, maxR);
         const angle = Math.atan2(y, x);
+
         const clampedX = clampedR * Math.cos(angle);
         const clampedY = clampedR * Math.sin(angle);
 
-        const normX = clampedX / maxR;
-        const normY = -clampedY / maxR; // invert Y for top = positive
+        // Normalize to [-1, 1]
+        let normX = clampedX / maxR;
+        let normY = -clampedY / maxR; // invert Y so up is positive
+
+        // Angular correction: scale so that top-right edge = (1, 1)
+        const cosA = Math.abs(Math.cos(angle));
+        const sinA = Math.abs(Math.sin(angle));
+        const scale = 1 / Math.max(cosA, sinA);
+
+        normX *= scale;
+        normY *= scale;
 
         return { x: normX, y: normY };
     };
+
 
     const handleMouseDown = (e) => {
         setIsDragging(true);
@@ -97,8 +108,15 @@ const Compass = ({ position, setPosition }) => {
                     points={(() => {
                         const cx = 128;
                         const cy = 128;
-                        const dx = position.x * 128; // controls needle length
-                        const dy = -position.y * 128; // invert Y for screen space
+
+                        // Correct needle scaling so it stays inside the circle
+                        const angle = Math.atan2(-position.y, position.x); // flip Y for screen coords
+                        const cosA = Math.abs(Math.cos(angle));
+                        const sinA = Math.abs(Math.sin(angle));
+                        const scale = 1 / Math.max(cosA, sinA); // max allowed for this angle
+
+                        const dx = (position.x / scale) * 128;
+                        const dy = (-position.y / scale) * 128; // invert Y for screen space
 
                         const tipX = cx + dx;
                         const tipY = cy + dy;
@@ -118,6 +136,7 @@ const Compass = ({ position, setPosition }) => {
                         return `${tipX},${tipY} ${base1X},${base1Y} ${base2X},${base2Y}`;
                     })()}
                 />
+
             </svg>
             <div className="label top">
                 🧗 Adventurous

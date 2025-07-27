@@ -53,7 +53,7 @@ const CustomOption = (props) => {
 
 // Custom ValueContainer component
 const CustomValueContainer = ({ children, ...props }) => {
-  const {handleOpenChange} = props.selectProps;
+  const { handleOpenChange } = props.selectProps;
   const { getValue } = props;
   const selectedValue = getValue();
   return (
@@ -65,7 +65,7 @@ const CustomValueContainer = ({ children, ...props }) => {
   );
 };
 
-const PresetSelectCompass = ({ label, value, onChange, onSurprise }) => {
+const PresetSelectCompass = ({ label, value, onChange, onSurprise, onReset }) => {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -108,7 +108,7 @@ const PresetSelectCompass = ({ label, value, onChange, onSurprise }) => {
     {
       value: 'adventurous-popular',
       label: 'Adventurous & Popular',
-       description: 'Easy mainstream travel',
+      description: 'Easy mainstream travel',
       image: process.env.PUBLIC_URL + 'images/compass.png',
       backgroundColor: '#FEF0B9',
     },
@@ -129,6 +129,7 @@ const PresetSelectCompass = ({ label, value, onChange, onSurprise }) => {
       boxShadow: 'none',
       '&:hover': { borderColor: '#2980b9' },
       minHeight: '30px',
+      width: '295px',
     }),
     option: (provided, state) => ({
       ...provided,
@@ -145,10 +146,8 @@ const PresetSelectCompass = ({ label, value, onChange, onSurprise }) => {
     }),
     valueContainer: (provided) => ({
       ...provided,
-      // padding: '5px 10px',
       width: '100%',
     }),
-
     indicatorSeparator: () => ({ display: 'none' }),
     indicatorsContainer: (provided) => ({
       ...provided,
@@ -165,7 +164,6 @@ const PresetSelectCompass = ({ label, value, onChange, onSurprise }) => {
         onChange={(selected) => onChange(selected ? selected.value : '')}
         styles={customStyles}
         components={{ Option: CustomOption, SingleValue: CustomValue, ValueContainer: CustomValueContainer }}
-        placeholder="Select a journey style"
         isSearchable={false}
         onMenuClose={handleCloseMenu}
         onMenuOpen={handleOpenMenu}
@@ -175,6 +173,9 @@ const PresetSelectCompass = ({ label, value, onChange, onSurprise }) => {
       />
       <button className="surprise-button" onClick={onSurprise}>
         🎲 Surprise Me
+      </button>
+      <button className="reset-button" onClick={onReset}>
+        Reset
       </button>
     </div>
   );
