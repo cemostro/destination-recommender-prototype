@@ -25,7 +25,7 @@ export const RadarChartComparison = ({ scores }) => {
     }, [scores, userData.Attributes]);
 
     const attributeNames = useMemo(() => {
-        return attributes.map(attr => attr.name);
+        return attributes.map(attr => attr.name.charAt(0).toUpperCase() + attr.name.slice(1));
     }, [attributes]);
 
     const destValues = useMemo(() => {
@@ -245,7 +245,7 @@ export const RadarChartComparison = ({ scores }) => {
                 .attr('y', y)
                 .attr('text-anchor', 'middle')
                 .attr('dy', '0.35em')
-                .attr('fill', '#333333')
+                .attr('fill', '#ffffff')
                 .attr('font-size', 14)
                 .attr('font-family', 'Inter', 'sans-serif')
                 .text(attributeNames[i]);

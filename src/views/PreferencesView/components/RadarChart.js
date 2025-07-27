@@ -8,11 +8,33 @@ import { debounce } from "lodash";
 const RadarChart = () => {
     const { userData, setUserData } = useTravelRecommenderStore();
 
+    const containerRef = useRef(null);
     const canvasRef = useRef(null);
     const svgRef = useRef(null);
-    const width = 600;
-    const height = 500;
-    const radius = 190;
+
+    const [dimensions, setDimensions] = useState({ width: 600, height: 500 });
+
+    // Track container resize
+    useEffect(() => {
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                const { width, height } = entry.contentRect;
+                setDimensions({ width, height });
+            }
+        });
+
+        if (containerRef.current) {
+            resizeObserver.observe(containerRef.current);
+        }
+
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, []);
+
+    const width = dimensions.width;
+    const height = dimensions.height;
+    const radius = Math.min(width, height) * 0.35;
     const centerX = width / 2;
     const centerY = height / 2;
 
@@ -42,51 +64,46 @@ const RadarChart = () => {
                 attr,
                 {
                     ...data,
-                    weight: newAttributes.includes(attr) ? 1 : 0 // Set weight to 1 if included, otherwise 0
+                    weight: newAttributes.includes(attr) ? 1 : 0
                 }
-            ]
-            ));
+            ])
+        );
         updateUserData(updatedAttributes);
     }, [userData, updateUserData]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
-        const svg = d3.select(svgRef.current)
-            .attr('width', width)
-            .attr('height', height);
+        const svg = d3.select(svgRef.current);
 
-        // Clear previous content
+        // Set actual resolution
+        canvas.width = width;
+        canvas.height = height;
+        svg.attr('width', width).attr('height', height);
+
         ctx.clearRect(0, 0, width, height);
         svg.selectAll('*').remove();
-
-        // Background
-        // ctx.fillStyle = '#f0f0f0';
-        // ctx.fillRect(0, 0, width, height);
 
         const attributes = Object.keys(attributeValues).filter(attr => includedAttributes.includes(attr));
         const values = attributes.map(attr => attributeValues[attr]);
 
-        // Calculate vertex points
         const points = attributes.map((_, i) => {
             const angle = (i / attributes.length) * 2 * Math.PI - Math.PI / 2;
             const r = (values[i] / 100) * radius;
             return {
                 x: centerX + r * Math.cos(angle),
                 y: centerY + r * Math.sin(angle),
-                color: d3.color(COLORS[i % COLORS.length]), // Use color from COLORS array
+                color: d3.color(COLORS[i % COLORS.length]),
                 value: values[i],
-                angle // Store angle for drag constraint
+                angle
             };
         });
 
-        // Render quadrilaterals for each attribute
         attributes.forEach((_, i) => {
             const current = points[i];
             const prev = points[i === 0 ? points.length - 1 : i - 1];
             const next = points[i === points.length - 1 ? 0 : i + 1];
 
-            // Calculate halfway points by interpolating x and y
             const halfwayPrev = {
                 x: (prev.x + current.x) / 2,
                 y: (prev.y + current.y) / 2,
@@ -99,13 +116,12 @@ const RadarChart = () => {
             };
 
             const quadPoints = [
-                { x: centerX, y: centerY, color: d3.color('rgba(255, 255, 255, 1)') }, // Center
-                halfwayPrev, // Halfway to prev
-                { x: current.x, y: current.y, color: current.color }, // Vertex
-                halfwayNext // Halfway to next
+                { x: centerX, y: centerY, color: d3.color('rgba(255, 255, 255, 1)') },
+                halfwayPrev,
+                { x: current.x, y: current.y, color: current.color },
+                halfwayNext
             ];
 
-            // Draw quadrilateral
             ctx.beginPath();
             ctx.moveTo(quadPoints[0].x, quadPoints[0].y);
             quadPoints.forEach((p, j) => {
@@ -113,12 +129,11 @@ const RadarChart = () => {
             });
             ctx.closePath();
 
-            // Gradient from center to maximum axis position
             const maxVertexX = centerX + radius * Math.cos(current.angle);
             const maxVertexY = centerY + radius * Math.sin(current.angle);
             const gradient = ctx.createLinearGradient(
-                quadPoints[0].x, quadPoints[0].y, // Center
-                maxVertexX, maxVertexY // Maximum axis position (radius 200)
+                quadPoints[0].x, quadPoints[0].y,
+                maxVertexX, maxVertexY
             );
             gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
             gradient.addColorStop(1, current.color.toString());
@@ -127,15 +142,6 @@ const RadarChart = () => {
             ctx.fill();
         });
 
-        // SVG elements (axes, vertices, labels)
-        svg.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', width)
-            .attr('height', height)
-            .attr('fill', 'none');
-
-        // Grid lines
         [0.2, 0.4, 0.6, 0.8, 1].forEach((scale) => {
             svg.append('path')
                 .attr('d', () => {
@@ -153,7 +159,6 @@ const RadarChart = () => {
                 .attr('fill', 'none');
         });
 
-        // Axes
         attributes.forEach((_, i) => {
             const angle = (i / attributes.length) * 2 * Math.PI - Math.PI / 2;
             const x = centerX + radius * Math.cos(angle);
@@ -167,8 +172,7 @@ const RadarChart = () => {
                 .attr('stroke-width', 1);
         });
 
-        // Vertices with drag behavior
-        const vertices = svg.selectAll('.vertex')
+        svg.selectAll('.vertex')
             .data(points)
             .enter()
             .append('circle')
@@ -181,18 +185,13 @@ const RadarChart = () => {
             .attr('stroke-width', 1)
             .call(d3.drag()
                 .on('drag', function (event, d) {
-                    // Project drag position onto the axis
                     const dx = event.x - centerX;
                     const dy = event.y - centerY;
-                    // Calculate projection onto axis (cosine similarity)
                     const cosTheta = Math.cos(d.angle);
                     const sinTheta = Math.sin(d.angle);
-                    const projection = dx * cosTheta + dy * sinTheta; // Scalar projection
-                    // Convert projection to radius (0 to 200)
+                    const projection = dx * cosTheta + dy * sinTheta;
                     const r = Math.max(0, Math.min(radius, projection));
-                    // Map radius to value (0 to 100)
                     const newValue = Math.round((r / radius) * 100);
-                    // Update values state
                     const attributeIndex = attributes.indexOf(attributes[points.indexOf(d)]);
                     const attributeName = attributes[attributeIndex];
                     setAttributeValues(prev => ({
@@ -203,21 +202,22 @@ const RadarChart = () => {
                 })
             );
 
-        // Labels
         attributes.forEach((attr, i) => {
             const angle = (i / attributes.length) * 2 * Math.PI - Math.PI / 2;
-            // console.log(`Angle for ${attr}: ${angle}`); CHECK FOR BETTER LABEL ALIGNMENT
-            const x = centerX + 1.25 * radius * Math.cos(angle);
+            console.log(`Attribute: ${attr}, Angle: ${angle}`);
+            const x = centerX + 1.1 * radius * Math.cos(angle);
             const y = centerY + 1.1 * radius * Math.sin(angle);
+            const isMiddle = Math.abs(Math.abs(angle) - Math.PI / 2) < 0.1;
+            const textAlign = isMiddle ? 'middle' : (angle < -Math.PI / 2 || angle > Math.PI / 2 ? 'end' : 'start');
+            console.log("attribute:", attr, "x:", x, "y:", y, "textAlign:", textAlign);
             svg.append('text')
                 .attr('x', x)
                 .attr('y', y)
-                .attr('text-anchor', 'middle')
+                .attr('text-anchor', textAlign)
                 .attr('dy', '0.35em')
-                .attr('fill', '#333333')
-                .attr('font-size', 14)
-                .attr('font-family', "'Inter', sans-serif")
                 .attr('fill', '#ffffff')
+                .attr('font-size', Math.max(12, radius * 0.08))
+                .attr('font-family', "'Inter', sans-serif")
                 .attr('cursor', 'pointer')
                 .text(attr)
                 .on('dblclick', () => {
@@ -227,20 +227,18 @@ const RadarChart = () => {
                 });
         });
 
-        // Click handler (for clicking canvas, not vertices)
         svg.on('click', (event) => {
             const target = event.target;
             if (!target.classList.contains('vertex') && target.tagName !== 'text') {
                 const [x, y] = d3.pointer(event);
                 const distanceFromCenter = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
-                if (distanceFromCenter <= radius) { // Only process clicks within the chart
+                if (distanceFromCenter <= radius) {
                     const radiusClicked = distanceFromCenter;
                     const maxRadius = radius;
                     const angle = Math.atan2(y - centerY, x - centerX) + Math.PI / 2 + Math.PI / attributes.length;
                     const normalizedAngle = angle < 0 ? angle + 2 * Math.PI : angle;
                     const index = Math.floor((normalizedAngle / (2 * Math.PI)) * attributes.length) % attributes.length;
                     const value = Math.min(Math.max((radiusClicked / maxRadius) * 100, 0), 100);
-
                     const attributeName = attributes[index];
                     setAttributeValues(prev => ({
                         ...prev,
@@ -249,16 +247,15 @@ const RadarChart = () => {
                     updateUserData({ ...userData.Attributes, [attributeName]: { ...userData.Attributes[attributeName], score: Math.round(value) } });
                 }
             }
-        })
-    }, [attributeValues, userData, includedAttributes, updateUserData]);
+        });
+    }, [attributeValues, userData, includedAttributes, updateUserData, width, height]);
 
     return (
-        <div className="radar-chart-container">
-            <canvas ref={canvasRef} width={500} height={500} style={{ position: 'absolute' }} />
-            <svg ref={svgRef} style={{ position: 'absolute' }}></svg>
+        <div ref={containerRef} className="radar-chart-container">
+            <canvas ref={canvasRef} />
+            <svg ref={svgRef}></svg>
         </div>
     );
-
 };
 
 export default RadarChart;
