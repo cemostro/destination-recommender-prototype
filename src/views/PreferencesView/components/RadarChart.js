@@ -55,7 +55,7 @@ const RadarChart = () => {
         debounce((newAttributes) => {
             setUserData({ ...userData, Attributes: newAttributes });
         }, 500),
-        [setUserData]
+        [userData]
     );
 
     const handleIncludedAttributesChange = useCallback((newAttributes) => {
@@ -204,12 +204,10 @@ const RadarChart = () => {
 
         attributes.forEach((attr, i) => {
             const angle = (i / attributes.length) * 2 * Math.PI - Math.PI / 2;
-            console.log(`Attribute: ${attr}, Angle: ${angle}`);
             const x = centerX + 1.1 * radius * Math.cos(angle);
             const y = centerY + 1.1 * radius * Math.sin(angle);
             const isMiddle = Math.abs(Math.abs(angle) - Math.PI / 2) < 0.1;
             const textAlign = isMiddle ? 'middle' : (angle < -Math.PI / 2 || angle > Math.PI / 2 ? 'end' : 'start');
-            console.log("attribute:", attr, "x:", x, "y:", y, "textAlign:", textAlign);
             svg.append('text')
                 .attr('x', x)
                 .attr('y', y)

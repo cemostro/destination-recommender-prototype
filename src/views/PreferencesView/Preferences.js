@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import "../../styles/App.css";
+import { debounce } from "lodash";
 import Budget from "./components/Budget";
 import { CustomizationContainer } from "./components/CustomizationContainer";
 import { PresetTypesContainer } from "./components/PresetTypesContainer";
@@ -39,7 +40,22 @@ const Preferences = () => {
 
   const [algorithmWeights, setAlgorithmWeights] = useState([33.33, 33.33, 33.34]);
   const [point, setPoint] = useState({ x: 200, y: 185 });
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const [position, setPosition] = useState(userData.CompassPosition || { x: 0, y: 0 });
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const updateUserData = useCallback(
+    debounce((position) => {
+      setUserData({ ...userData, CompassPosition: position });
+    }, 500),
+    [userData]
+  );
+
+  const handlePositionChange = (newPosition) => {
+    setPosition(newPosition);
+    updateUserData(newPosition);
+    setSelectedPreset('custom');
+  };
 
 
   const handlePresetChange = (presetName) => {
@@ -48,6 +64,7 @@ const Preferences = () => {
       const preset = presets.find(p => p.value === presetName);
       if (preset) {
         setPosition(preset.weights);
+        updateUserData(preset.weights);
       }
     }
     // if (presetName !== 'custom') {
@@ -58,11 +75,6 @@ const Preferences = () => {
     //     updatePointFromWeights(newWeights);
     //   }
     // }
-  };
-
-  const handlePositionChange = (newPosition) => {
-    setPosition(newPosition);
-    setSelectedPreset('custom');
   };
 
   const updatePointFromWeights = (newWeights) => {
@@ -152,7 +164,7 @@ const Preferences = () => {
           </Tabs>
         </Col>
         <Col xs={6} className="right-column">
-          <p style={{ textAlign: "left" }}>Choose your journey style:</p>
+          <p style={{ textAlign: "left" }}>Set your travel compass:</p>
           <div className="journey-style-placeholder-1"  >
             <PresetSelectCompass
               value={selectedPreset}
@@ -160,11 +172,12 @@ const Preferences = () => {
               onSurprise={() => {
                 const randomX = (Math.random() * 2 - 1).toFixed(2);
                 const randomY = (Math.random() * 2 - 1).toFixed(2);
-                handlePositionChange({ x: randomX, y: randomY });  
+                handlePositionChange({ x: randomX, y: randomY });
               }}
               onReset={() => {
                 setPosition({ x: 0, y: 0 });
                 setSelectedPreset('personalized');
+                updateUserData({ x: 0, y: 0 });
               }}
             />
           </div>

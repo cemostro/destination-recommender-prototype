@@ -7,6 +7,7 @@ const useTravelRecommenderStore = create((set) => ({
         Budget: 60,
         Months: Array(12).fill(0),
         PresetType: [],
+        CompassPosition: { x: 0, y: 0 },
         Attributes: {
             Nature: {
                 weight: 1,

@@ -140,12 +140,12 @@ const Compass = ({ position, setPosition }) => {
             </svg>
             <div className="label top">
                 🧗 Adventurous
-                <div className="sublabel">Hiking, challenge</div>
+                <div className="sublabel">Active discovery</div>
             </div>
 
             <div className="label bottom">
                 🏖️ Relaxing
-                <div className="sublabel">Beach, slow travel</div>
+                <div className="sublabel">Cozy retreats</div>
             </div>
 
             <div className="label left">

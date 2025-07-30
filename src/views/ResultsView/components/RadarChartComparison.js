@@ -4,6 +4,23 @@ import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 import { COLORS } from '../../../data/constantData';
 import '../../../styles/RadarChartComparison.css';
 
+const LegendItem = ({ color, dashed, label }) => {
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6, cursor: 'default' }}>
+            <svg width="24" height="16" style={{ marginRight: 8 }}>
+                <line
+                    x1="0" y1="8" x2="24" y2="8"
+                    stroke={color}
+                    strokeWidth="3"
+                    strokeDasharray={dashed ? "6,6" : "0"}
+                />
+            </svg>
+            <span>{label}</span>
+        </div>
+    );
+};
+
+
 export const RadarChartComparison = ({ scores }) => {
     const canvasRef = useRef(null);
     const svgRef = useRef(null);
@@ -160,9 +177,18 @@ export const RadarChartComparison = ({ scores }) => {
     }, [userValues, destValues, attributeNames, dimensions]);
 
     return (
-        <div className="radar-chart-comparison-container" ref={containerRef}>
-            <canvas ref={canvasRef} width={width} height={height} style={{ position: 'absolute' }} />
-            <svg ref={svgRef} style={{ position: 'absolute' }}></svg>
+        <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'center', gap: 0 }}>
+            <div className="radar-chart-comparison-container" ref={containerRef} style={{ flexShrink: 0 }}>
+                <canvas ref={canvasRef} width={width} height={height} style={{ position: 'absolute' }} />
+                <svg ref={svgRef} style={{ position: 'absolute' }}></svg>
+            </div>
+
+            <div style={{ color: '#fff', fontFamily: "'Inter', sans-serif", fontSize: Math.max(10, radius * 0.08), marginTop: 40 }}>
+                {/* <div style={{ marginBottom: 8, fontWeight: 'bold' }}>Legend</div> */}
+
+                <LegendItem color="#ffffff" dashed label="Your Preferences" />
+                <LegendItem color="#808080" dashed={false} label="Destination Value" />
+            </div>
         </div>
     );
 };

@@ -24,37 +24,37 @@
 
 .label {
   position: absolute;
-  font-size: 12px;
+  font-size: 13px;
   font-family: sans-serif;
   color: #ffffff;
 }
 
 .label.top {
-  top: -40px; /* move up */
+  top: -43px; /* move up */
   left: 50%;
   transform: translateX(-50%);
 }
 
 .label.bottom {
-  bottom: -40px; /* move down */
+  bottom: -43px; /* move down */
   left: 50%;
   transform: translateX(-50%);
 }
 
 .label.left {
-  left: -100px; /* move left */
+  left: -110px; /* move left */
   top: 50%;
   transform: translateY(-50%);
 }
 
 .label.right {
-  right: -80px; /* move right */
+  right: -85px; /* move right */
   top: 50%;
   transform: translateY(-50%);
 }
 
 .sublabel {
-  font-size: 10px;
+  font-size: 11px;
   color: #ffffff;
   margin-top: 2px;
 }

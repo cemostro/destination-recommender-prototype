@@ -28,6 +28,7 @@ class LoadCountriesFromCSV {
           region: scoreCountry.Region,
           uname: scoreCountry.u_name,
           price: Math.ceil((scoreCountry.costPerWeek * userData.Stay) / 7),
+          popularity: this.calculateQualification(scoreCountry.popularity),
           qualifications: {
             nature: this.calculateQualification(scoreCountry.nature),
             architecture: this.calculateQualification(
@@ -102,9 +103,6 @@ class LoadCountriesFromCSV {
             },
           },
         };
-        var budgetScore = this.calculatePriceScore(res.price, userData);
-        var travelMonthScore = this.calculateTravelMonthScore(res.travelMonths, userData.Months);
-        var isAffordable = !userData.isPriceImportant || budgetScore === 100;
         mapCountry.properties.country = scoreCountry.ParentRegion;
         mapCountry.properties.name = scoreCountry.Region;
         res.scores.presetTypeScore = this.calculatePresetTypeScore(userData.PresetType, res.qualifications);
@@ -152,8 +150,51 @@ class LoadCountriesFromCSV {
           totalAttrScore = { score: res.scores.presetTypeScore, weight: userData.PresetType.length };
         }
 
-        var totalScore = (totalAttrScore.score /
-          totalAttrScore.weight).toFixed(2);
+        const preferenceScore = totalAttrScore.score / totalAttrScore.weight;
+        const dissimilarityScore = 100 - preferenceScore;
+
+        const popularityScore = res.popularity;
+        const noveltyScore = 100 - res.popularity;
+
+        const popularityWeight = userData.CompassPosition.x; // -1 to 1
+        const diversityWeight = userData.CompassPosition.y; // -1 to 1
+        // console.log(`Compass Position: x=${popularityWeight}, y=${diversityWeight}`);
+
+        let filteredWeight = Math.max(0, 0.5 - diversityWeight) / 1.5; // -1 → 1, 0.5 → 0
+        let dissimilarityWeight = Math.max(0, (diversityWeight - 0.5) / 0.5); // 0.5 → 0, 1 → 1
+
+        let popularityScoreWeight = Math.max(0, popularityWeight); // 0 to 1
+        let noveltyScoreWeight = Math.max(0, -popularityWeight); // 0 to 1
+
+        const totalWeight = filteredWeight + dissimilarityWeight + popularityScoreWeight + noveltyScoreWeight;
+
+        if (totalWeight > 0) {
+          filteredWeight /= totalWeight;
+          dissimilarityWeight /= totalWeight;
+          popularityScoreWeight /= totalWeight;
+          noveltyScoreWeight /= totalWeight;
+        } else {
+          // fallback: if everything is zero (shouldn’t happen), default to equal
+          filteredWeight = 1;
+          dissimilarityWeight = 0;
+          popularityScoreWeight = 0;
+          noveltyScoreWeight = 0;
+        }
+
+        // console.log(`Weights: filtered=${filteredWeight}, dissimilarity=${dissimilarityWeight}, popularity=${popularityScoreWeight}, novelty=${noveltyScoreWeight}`);
+
+        const totalScore =
+          (filteredWeight * preferenceScore +
+          dissimilarityWeight * dissimilarityScore +
+          popularityScoreWeight * popularityScore +
+          noveltyScoreWeight * noveltyScore).toFixed(2);
+
+        // console.log(`Individual scores for ${res.country} (${res.region}): `);
+        // console.log(`  - Preference Score: ${preferenceScore}`);
+        // console.log(`  - Dissimilarity Score: ${dissimilarityScore}`);
+        // console.log(`  - Popularity Score: ${popularityScore}`);
+        // console.log(`  - Novelty Score: ${noveltyScore}`);
+        // console.log(`  - Total Score: ${totalScore}`);
 
         res.scores.totalScore = totalScore;
         mapCountry.properties.result = res;
@@ -305,6 +346,8 @@ class LoadCountriesFromCSV {
     }
     return maxBudget;
   };
+
+  clamp = (val, min = 0, max = 1) => Math.max(min, Math.min(max, val));
 }
 
 export default LoadCountriesFromCSV;

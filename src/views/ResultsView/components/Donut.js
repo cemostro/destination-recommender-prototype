@@ -15,7 +15,7 @@ const Donut = ({ scores, label }) => {
       y={donutState.outerRadius}
       textAnchor="middle"
       dominantBaseline="middle"
-      style={{ fontWeight: "bold" }}
+      style={{ fontWeight: "bold", fill: "#ffffff" }}
       fontSize={20}
     >
       {label}
