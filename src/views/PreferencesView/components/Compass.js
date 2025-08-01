@@ -68,7 +68,12 @@ const Compass = ({ position, setPosition }) => {
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseUp}
         >
-            <svg ref={svgRef} className="compass-svg">
+            <svg
+                ref={svgRef}
+                className="compass-svg"
+                viewBox="0 0 256 256"
+                preserveAspectRatio="xMidYMid meet"
+            >
                 {/* Circle background */}
                 <circle cx="50%" cy="50%" r="50%" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="1" />
 
