@@ -160,8 +160,8 @@ class LoadCountriesFromCSV {
         const diversityWeight = userData.CompassPosition.y; // -1 to 1
         // console.log(`Compass Position: x=${popularityWeight}, y=${diversityWeight}`);
 
-        let filteredWeight = Math.max(0, 0.5 - diversityWeight) / 1.5; // -1 → 1, 0.5 → 0
-        let dissimilarityWeight = Math.max(0, (diversityWeight - 0.5) / 0.5); // 0.5 → 0, 1 → 1
+        let filteredWeight = Math.max(0, (diversityWeight + 0.5) / 1.5); // -0.5 → 0, 1 → 1
+        let dissimilarityWeight = Math.max(0, (-0.5 - diversityWeight) / 0.5); // -0.5 → 0, -1 → 1
 
         let popularityScoreWeight = Math.max(0, popularityWeight); // 0 to 1
         let noveltyScoreWeight = Math.max(0, -popularityWeight); // 0 to 1
@@ -185,9 +185,9 @@ class LoadCountriesFromCSV {
 
         const totalScore =
           (filteredWeight * preferenceScore +
-          dissimilarityWeight * dissimilarityScore +
-          popularityScoreWeight * popularityScore +
-          noveltyScoreWeight * noveltyScore).toFixed(2);
+            dissimilarityWeight * dissimilarityScore +
+            popularityScoreWeight * popularityScore +
+            noveltyScoreWeight * noveltyScore).toFixed(2);
 
         // console.log(`Individual scores for ${res.country} (${res.region}): `);
         // console.log(`  - Preference Score: ${preferenceScore}`);

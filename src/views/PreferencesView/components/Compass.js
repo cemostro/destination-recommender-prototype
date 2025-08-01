@@ -139,22 +139,22 @@ const Compass = ({ position, setPosition }) => {
 
             </svg>
             <div className="label top">
-                🧗 Adventurous
-                <div className="sublabel">Active discovery</div>
+                Personalized
+                <div className="sublabel">Matches preferences</div>
             </div>
 
             <div className="label bottom">
-                🏖️ Relaxing
-                <div className="sublabel">Cozy retreats</div>
+                Diverse
+                <div className="sublabel">Unexpected and varied</div>
             </div>
 
             <div className="label left">
-                🔍 Hidden Gems
-                <div className="sublabel">Off-the-map spots</div>
+                Lesser-Known
+                <div className="sublabel">Rarely visited spots</div>
             </div>
 
             <div className="label right">
-                🏙️ Popular
+                Popular
                 <div className="sublabel">Famous places</div>
             </div>
         </div>
