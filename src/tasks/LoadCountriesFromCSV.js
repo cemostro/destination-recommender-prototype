@@ -196,6 +196,20 @@ class LoadCountriesFromCSV {
         // console.log(`  - Novelty Score: ${noveltyScore}`);
         // console.log(`  - Total Score: ${totalScore}`);
 
+        res.scores.individualScores = {
+          preference: preferenceScore,
+          dissimilarity: dissimilarityScore,
+          popularity: popularityScore,
+          novelty: noveltyScore
+        };
+
+        res.scores.weights = {
+          filtered: filteredWeight,
+          dissimilarity: dissimilarityWeight,
+          popularity: popularityScoreWeight,
+          novelty: noveltyScoreWeight
+        };
+
         res.scores.totalScore = totalScore;
         mapCountry.properties.result = res;
         this.allResults.push(res);

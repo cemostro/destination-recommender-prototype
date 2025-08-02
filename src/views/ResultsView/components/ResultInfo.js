@@ -5,6 +5,7 @@ import { NoviceScores } from "./NoviceScores";
 import { PieChartComponent } from "./PieChartComponent";
 import { TravelMonthsComponent } from "./TravelMonthsComponent";
 import { RadarChartComparison } from "./RadarChartComparison";
+import { ScoreBreakdownBar } from "./ScoreBreakdownBar";
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 
 const ResultInfo = ({ country, label }) => {
@@ -53,14 +54,19 @@ const ResultInfo = ({ country, label }) => {
       <hr />
       <TravelMonthsComponent countryName={country.region} travelMonths={country.travelMonths} />
       <hr />
-      <RadarChartComparison
-      scores={Object.keys(country.qualifications)?.map((key) => ({
+      {userData.PreferenceMode === 'radar' ? (
+        <>
+          <p style={{ fontSize: "x-small" }}>
+            Scores of {country.region} based on your preferences: (The gray outline shows the score of the attribute for {country.region} and the dashed outline shows your preferences)
+          </p>
+          <RadarChartComparison
+            scores={Object.keys(country.qualifications)?.map((key) => ({
               name: key,
               value: country.qualifications[key],
             }))}
-      />
-      <hr />
-      {userData.PresetType.length === 0 ? (
+          />
+        </>
+      ) : userData.PreferenceMode === 'slider' ? (
         <>
           <p style={{ fontSize: "x-small" }}>
             Scores of {country.region} based on your preferences: (The bar
@@ -89,6 +95,9 @@ const ResultInfo = ({ country, label }) => {
           />
         </>
       )}
+      <hr />
+
+      <ScoreBreakdownBar scores={country.scores} />
 
       <hr />
       <p>Overall score: {country.scores.totalScore}/100</p>

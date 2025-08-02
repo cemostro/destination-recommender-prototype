@@ -1,0 +1,25 @@
+.score-bar-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+.score-bar {
+  display: flex;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  font-family: sans-serif;
+}
+
+.score-bar-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 0 4px;
+  white-space: nowrap;
+}

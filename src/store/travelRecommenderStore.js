@@ -8,6 +8,7 @@ const useTravelRecommenderStore = create((set) => ({
         Months: Array(12).fill(0),
         PresetType: [],
         CompassPosition: { x: 0, y: 0 },
+        PreferenceMode: "radar",
         Attributes: {
             Nature: {
                 weight: 1,

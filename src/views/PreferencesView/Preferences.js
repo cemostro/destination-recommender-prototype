@@ -36,7 +36,7 @@ const presets = [
 const Preferences = () => {
   const { userData, setUserData } = useTravelRecommenderStore();
   const [selectedPreset, setSelectedPreset] = useState('personalized');
-  const [key, setKey] = useState('radar');
+  const [key, setKey] = useState(userData.PreferenceMode || 'radar');
 
   const [algorithmWeights, setAlgorithmWeights] = useState([33.33, 33.33, 33.34]);
   const [point, setPoint] = useState({ x: 200, y: 185 });
@@ -143,7 +143,7 @@ const Preferences = () => {
           <Tabs
             activeKey={key}
             id="mode"
-            onSelect={(k) => { setKey(k); setUserData({ ...userData, PresetType: [] }); }}
+            onSelect={(k) => { setKey(k); setUserData({ ...userData, PreferenceMode: k, PresetType: [] }); }}
             className="mb-3"
           >
             <Tab eventKey="preset" title="Presets">
