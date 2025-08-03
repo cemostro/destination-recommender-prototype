@@ -17,7 +17,7 @@ export default function NumericControls({ position, onSetPosition }) {
       {/* Popularity Slider */}
       <div className="control-group">
         <label>
-          Popularity (← Hidden &nbsp;&nbsp;|&nbsp;&nbsp; Popular →)
+          Popularity (← Lesser-Known &nbsp;&nbsp;|&nbsp;&nbsp; Popular →)
         </label>
         <div className="input-row">
           <input
@@ -33,7 +33,7 @@ export default function NumericControls({ position, onSetPosition }) {
             min={-1}
             max={1}
             step={0.01}
-            value={position.x}
+            value={position.x.toFixed(2)}
             onChange={(e) => handleChange('x', e.target.value)}
             className="weight-input"
           />
@@ -43,7 +43,7 @@ export default function NumericControls({ position, onSetPosition }) {
       {/* Activity Level Slider */}
       <div className="control-group">
         <label>
-          Activity Level (↓ Relaxing &nbsp;&nbsp;|&nbsp;&nbsp; Adventurous ↑)
+          Personalization (← Diverse &nbsp;&nbsp;|&nbsp;&nbsp; Personalized →)
         </label>
         <div className="input-row">
           <input
@@ -54,12 +54,13 @@ export default function NumericControls({ position, onSetPosition }) {
             value={position.y}
             onChange={(e) => handleChange('y', e.target.value)}
           />
+          
           <input
             type="number"
             min={-1}
             max={1}
             step={0.01}
-            value={position.y}
+            value={position.y.toFixed(2)}
             onChange={(e) => handleChange('y', e.target.value)}
             className="weight-input"
           />

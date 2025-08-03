@@ -13,8 +13,7 @@ export const CustomizationContainer = () => {
       {Object.keys(userData.Attributes).map((item, index) => (
         <div
           style={{
-            backgroundColor:
-              userData.Attributes[item].weight === 0 ? "gray" : myConstant.COLORS[index % myConstant.COLORS.length],
+            border: "1px solid #336273",
             borderRadius: "100",
             color: "#fff",
             textAlign: "left",
@@ -25,7 +24,7 @@ export const CustomizationContainer = () => {
           }}
           key={index}
         >
-          <Attribute attrName={item} />
+          <Attribute attrName={item} sliderColor={userData.Attributes[item].weight === 0 ? "gray" : myConstant.COLORS[index % myConstant.COLORS.length]} />
         </div>
       ))}
     </div>

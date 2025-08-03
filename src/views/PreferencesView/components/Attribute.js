@@ -4,7 +4,7 @@ import "../../../styles/App.css";
 import SlideRange from "./SlideRange";
 import PrioritySwitch from "./PrioritySwitch";
 
-const Attribute = ({ attrName }) => {
+const Attribute = ({ attrName, sliderColor }) => {
   return (
     <Row
       style={{
@@ -16,7 +16,7 @@ const Attribute = ({ attrName }) => {
     >
       <Col xs={4}>{attrName}</Col>
       <Col xs={7}>
-        <SlideRange attrName={attrName} />
+        <SlideRange attrName={attrName} sliderColor={sliderColor} />
       </Col>
       <Col xs={1}>
         <PrioritySwitch attrName={attrName} />
