@@ -4,7 +4,6 @@ import '../../../styles/ScoreBreakdownBar.css';
 export const ScoreBreakdownBar = ({ scores }) => {
     // Normalize weights for width percentages
     const weights = { ...scores.weights }
-    console.log("ScoreBreakdownBar weights:", weights);
     const useFiltered = weights.dissimilarity === 0;
     const usePopularity = weights.novelty === 0;
     const individualScores = { ...scores.individualScores };
@@ -13,7 +12,7 @@ export const ScoreBreakdownBar = ({ scores }) => {
         {
             label: useFiltered ? "Personalized" : "Dissimilarity",
             color: "#3498db",
-            widthPercent: (useFiltered ? weights.filtered : weights.dissimilarity) * 100,
+            widthPercent: (useFiltered ? weights.preference : weights.dissimilarity) * 100,
             score: useFiltered ? individualScores.preference : individualScores.dissimilarity,
         },
         {
@@ -22,12 +21,12 @@ export const ScoreBreakdownBar = ({ scores }) => {
             widthPercent: (usePopularity ? weights.popularity : weights.novelty) * 100,
             score: usePopularity ? individualScores.popularity : individualScores.novelty,
         },
-        // {
-        //   label: "Diversity (ILD)",
-        //   color: "#2ecc71",
-        //   widthPercent: (weights.diversity / totalWeight) * 100,
-        //   score: individualScores.diversity,
-        // },
+        {
+          label: "Diversity (ILD)",
+          color: "#2ecc71",
+          widthPercent: weights.ild * 100,
+          score: individualScores.ild,
+        },
     ];
 
     return (

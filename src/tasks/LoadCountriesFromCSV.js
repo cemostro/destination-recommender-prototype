@@ -160,57 +160,28 @@ class LoadCountriesFromCSV {
         const diversityWeight = userData.CompassPosition.y; // -1 to 1
         // console.log(`Compass Position: x=${popularityWeight}, y=${diversityWeight}`);
 
-        let filteredWeight = Math.max(0, (diversityWeight + 0.5) / 1.5); // -0.5 → 0, 1 → 1
+        let preferenceWeight = Math.max(0, (diversityWeight + 0.5) / 1.5); // -0.5 → 0, 1 → 1
         let dissimilarityWeight = Math.max(0, (-0.5 - diversityWeight) / 0.5); // -0.5 → 0, -1 → 1
 
         let popularityScoreWeight = Math.max(0, popularityWeight); // 0 to 1
         let noveltyScoreWeight = Math.max(0, -popularityWeight); // 0 to 1
 
-        const totalWeight = filteredWeight + dissimilarityWeight + popularityScoreWeight + noveltyScoreWeight;
-
-        if (totalWeight > 0) {
-          filteredWeight /= totalWeight;
-          dissimilarityWeight /= totalWeight;
-          popularityScoreWeight /= totalWeight;
-          noveltyScoreWeight /= totalWeight;
-        } else {
-          // fallback: if everything is zero (shouldn’t happen), default to equal
-          filteredWeight = 1;
-          dissimilarityWeight = 0;
-          popularityScoreWeight = 0;
-          noveltyScoreWeight = 0;
-        }
-
-        // console.log(`Weights: filtered=${filteredWeight}, dissimilarity=${dissimilarityWeight}, popularity=${popularityScoreWeight}, novelty=${noveltyScoreWeight}`);
-
-        const totalScore =
-          (filteredWeight * preferenceScore +
-            dissimilarityWeight * dissimilarityScore +
-            popularityScoreWeight * popularityScore +
-            noveltyScoreWeight * noveltyScore).toFixed(2);
-
-        // console.log(`Individual scores for ${res.country} (${res.region}): `);
-        // console.log(`  - Preference Score: ${preferenceScore}`);
-        // console.log(`  - Dissimilarity Score: ${dissimilarityScore}`);
-        // console.log(`  - Popularity Score: ${popularityScore}`);
-        // console.log(`  - Novelty Score: ${noveltyScore}`);
-        // console.log(`  - Total Score: ${totalScore}`);
-
         res.scores.individualScores = {
           preference: preferenceScore,
           dissimilarity: dissimilarityScore,
           popularity: popularityScore,
-          novelty: noveltyScore
+          novelty: noveltyScore,
         };
 
-        res.scores.weights = {
-          filtered: filteredWeight,
+        res.scores.weights = this.normalizeWeights({
+          preference: preferenceWeight,
           dissimilarity: dissimilarityWeight,
           popularity: popularityScoreWeight,
-          novelty: noveltyScoreWeight
-        };
+          novelty: noveltyScoreWeight,
+        });
 
-        res.scores.totalScore = totalScore;
+        res.scores.totalScore = this.calculateFinalScore(res.scores.individualScores, res.scores.weights);
+
         mapCountry.properties.result = res;
         this.allResults.push(res);
       }
@@ -223,7 +194,61 @@ class LoadCountriesFromCSV {
     setCountries(this.mapCountries);
     this.allResults.sort((a, b) => b.scores.totalScore - a.scores.totalScore);
     this.allResults = this.allResults.filter((a) => a.scores.totalScore > 0);
-    setResults(this.allResults.slice(0, 10));
+
+    const topResults = this.allResults.slice(0, 20);
+
+    for (let i = 0; i < topResults.length; i++) {
+      const current = topResults[i];
+      let sumDissimilarity = 0;
+      let count = 0;
+
+      for (let j = 0; j < topResults.length; j++) {
+        if (i === j) continue;
+
+        const other = topResults[j];
+        const dissimilarity = this.dissimilarityScore(current.qualifications, other.qualifications);
+        sumDissimilarity += dissimilarity;
+        count++;
+      }
+
+      const avgDissimilarity = count > 0 ? sumDissimilarity / count : 0;
+      const mmrScore = avgDissimilarity; // 0 = similar to others, 100 = diverse
+
+      const diversityWeight = userData.CompassPosition.y;
+      const ildWeight = 1 - (diversityWeight + 1) / 2; // maps -1 to 1 to 0 to 1
+
+      const normalizedWeights = this.normalizeWeights({...current.scores.weights, ild: ildWeight });
+
+      current.scores.totalScore = this.calculateFinalScore({...current.scores.individualScores, ild: mmrScore }, normalizedWeights);
+      current.scores.individualScores.ild = mmrScore;
+      current.scores.weights = normalizedWeights;
+    }
+
+    // Normalize ILD scores to a 0–100 scale
+    const maxILD = Math.max(...topResults.map(d => d.scores.individualScores.ild));
+    topResults.forEach(d => {
+      d.scores.individualScores.ild = maxILD > 0 ? (d.scores.individualScores.ild / maxILD) * 100 : 0;
+      d.scores.totalScore = this.calculateFinalScore(d.scores.individualScores, d.scores.weights);
+    });
+
+    topResults.sort((a, b) => b.scores.totalScore - a.scores.totalScore);
+    setResults(topResults.slice(0, 10));
+  };
+  calculateFinalScore = (individualScores, weights) => {
+    let finalScore = 0;
+    for (const key in individualScores) {
+      finalScore += individualScores[key] * weights[key];
+    }
+    return finalScore.toFixed(2);
+  };
+  normalizeWeights = (weights) => {
+    const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
+    if (totalWeight === 0) return weights;
+    const normalized = {};
+    for (const key in weights) {
+      normalized[key] = weights[key] / totalWeight;
+    }
+    return normalized;
   };
   calculateQualification = (qualification) => {
     let numScore;
@@ -309,6 +334,7 @@ class LoadCountriesFromCSV {
     }
     return maxScore;
   };
+
   calculatePriceScore = (countryPrice, userData) => {
     //change price per week to # days that user going to stay
     const maxBudget = this.getBudgetCeiling(userData.Budget);
@@ -317,6 +343,23 @@ class LoadCountriesFromCSV {
     }
     // const pGroup = this.getPriceGroup(price);
     return 0;
+  };
+
+  dissimilarityScore = (qualifications1, qualifications2) => {
+    const keys = [
+      "nature", "architecture", "hiking", "wintersports", "beach",
+      "culture", "culinary", "entertainment", "shopping"
+    ];
+
+    let totalDiff = 0;
+
+    for (const key of keys) {
+      const v1 = qualifications1[key];
+      const v2 = qualifications2[key];
+      totalDiff += Math.abs(v1 - v2);
+    }
+
+    return totalDiff / keys.length;
   };
 
   getPriceGroup = (price) => {
