@@ -122,6 +122,7 @@ const PresetSelect = ({ label, value, onChange, className }) => {
       boxShadow: 'none',
       '&:hover': { borderColor: '#2980b9' },
       minHeight: '30px',
+      width: '295px',
     }),
     option: (provided, state) => ({
       ...provided,

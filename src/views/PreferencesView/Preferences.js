@@ -89,32 +89,38 @@ const Preferences = () => {
     setPoint({ x, y });
   };
 
-  const handleWeightChange = (index, value) => {
-    const newValue = Math.max(0, Math.min(100, parseFloat(value) || 0));
-    setAlgorithmWeights(prev => {
-      const newWeights = [...prev];
-      newWeights[index] = newValue;
-      const otherIndices = [0, 1, 2].filter(i => i !== index);
-      const remaining = 100 - newValue;
-      const sumOthers = prev[otherIndices[0]] + prev[otherIndices[1]];
-      if (sumOthers > 0) {
-        newWeights[otherIndices[0]] = (prev[otherIndices[0]] / sumOthers) * remaining;
-        newWeights[otherIndices[1]] = (prev[otherIndices[1]] / sumOthers) * remaining;
-      } else {
-        newWeights[otherIndices[0]] = remaining / 2;
-        newWeights[otherIndices[1]] = remaining / 2;
-      }
-      const total = newWeights.reduce((a, b) => a + b, 0);
-      newWeights.forEach((_, i) => {
-        newWeights[i] = (newWeights[i] / total) * 100;
-      });
-      updatePointFromWeights(newWeights);
-      const matchingPreset = presets.find(p =>
-        p.weights.every((w, i) => Math.abs(w - newWeights[i]) < 0.01)
-      );
-      setSelectedPreset(matchingPreset ? matchingPreset.name : 'custom');
-      return newWeights.map(v => Math.round(v * 100) / 100);
-    });
+  const handleWeightChange = (weights) => {
+    setAlgorithmWeights(weights);
+    const matchingPreset = presets.find(p =>
+      p.weights.every((w, i) => Math.abs(w - weights[i]) < 0.01)
+    );
+    setSelectedPreset(matchingPreset ? matchingPreset.name : 'custom');
+    //   setSelectedPreset(matchingPreset ? matchingPreset.name : 'custom');
+    // const newValue = Math.max(0, Math.min(100, parseFloat(value) || 0));
+    // setAlgorithmWeights(prev => {
+    //   const newWeights = [...prev];
+    //   newWeights[index] = newValue;
+    //   const otherIndices = [0, 1, 2].filter(i => i !== index);
+    //   const remaining = 100 - newValue;
+    //   const sumOthers = prev[otherIndices[0]] + prev[otherIndices[1]];
+    //   if (sumOthers > 0) {
+    //     newWeights[otherIndices[0]] = (prev[otherIndices[0]] / sumOthers) * remaining;
+    //     newWeights[otherIndices[1]] = (prev[otherIndices[1]] / sumOthers) * remaining;
+    //   } else {
+    //     newWeights[otherIndices[0]] = remaining / 2;
+    //     newWeights[otherIndices[1]] = remaining / 2;
+    //   }
+    //   const total = newWeights.reduce((a, b) => a + b, 0);
+    //   newWeights.forEach((_, i) => {
+    //     newWeights[i] = (newWeights[i] / total) * 100;
+    //   });
+    //   updatePointFromWeights(newWeights);
+    //   const matchingPreset = presets.find(p =>
+    //     p.weights.every((w, i) => Math.abs(w - newWeights[i]) < 0.01)
+    //   );
+    //   setSelectedPreset(matchingPreset ? matchingPreset.name : 'custom');
+    //   return newWeights.map(v => Math.round(v * 100) / 100);
+    // });
   };
 
   const updateWeightsFromPoint = (x, y) => {

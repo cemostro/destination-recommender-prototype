@@ -1,70 +1,26 @@
 .triangle-control-container {
   position: relative;
-  width: 400px;
-  height: 300px; /* Canvas (300px) + weights display */
+  width: 100%; /* fully responsive */
+  max-width: 400px;
+  margin: auto;
 }
-
-.triangle-control-container canvas,
-.triangle-control-container svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 400px;
-  height: 300px;
-}
-
-/* .triangle-control-container .icon-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 400px;
-} */
 
 .weights-display {
   display: flex;
   justify-content: space-around;
-  margin-top: 310px; /* Below 300px canvas */
+  margin-top: 0.5rem;
   font-family: 'Inter', sans-serif;
   font-size: 14px;
-  color: #333333;
 }
 
 .weight-item {
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-right: 10px;
 }
 
 .color-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  margin-right: 5px;
-}
-
-.weight-label {
-  color: #333333;
-}
-
-.weight-input {
-  width: 60px;
-  padding: 4px;
-  font-size: 14px;
-  border: 1px solid #cccccc;
-  border-radius: 4px;
-  background-color: #ffffff;
-  color: #333333;
-  font-family: 'Inter', sans-serif;
-}
-
-.weight-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-.percent-sign {
-  color: #333333;
 }
