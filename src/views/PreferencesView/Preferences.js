@@ -9,17 +9,17 @@ import AdditionalInfo from "./components/AdditionalInfo";
 import TravelMonths from "./components/TravelMonths";
 import useTravelRecommenderStore from "../../store/travelRecommenderStore";
 import PresetSelect from "./components/PresetSelect";
-import PresetSelectCompass from "./components/PresetSelectCompass";
+// import PresetSelectCompass from "./components/PresetSelectCompass";
 import TriangleControl from "./components/TriangleControl";
 import WeightInputs from "./components/WeightInputs";
 import RadarChart from "./components/RadarChart";
 import EditDimensionsButton from "./components/EditDimensionsButton";
-import Compass from "./components/Compass";
-import NumericControls from "./components/NumericControls";
+// import Compass from "./components/Compass";
+// import NumericControls from "./components/NumericControls";
 
 
 const presets = [
-  { value: 'balanced', weights: [33.33, 33.33, 33.34] },
+  { value: 'balanced', weights: [33.3, 33.3, 33.4] },
   { value: 'personalized', weights: [100, 0, 0] },
   { value: 'explorer', weights: [30, 0, 70] },
   { value: 'classic', weights: [30, 70, 0] },
@@ -39,8 +39,6 @@ const Preferences = () => {
   const [key, setKey] = useState(userData.PreferenceMode || 'radar');
 
   const [algorithmWeights, setAlgorithmWeights] = useState([100, 0, 0]);
-  const [point, setPoint] = useState({ x: 200, y: 45 });
-
   // const [position, setPosition] = useState(userData.CompassPosition || { x: 0, y: 0 });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -71,73 +69,36 @@ const Preferences = () => {
       const preset = presets.find(p => p.value === presetName);
       if (preset) {
         const newWeights = [...preset.weights];
-        setAlgorithmWeights(newWeights.map(v => Math.round(v * 100) / 100));
-        updatePointFromWeights(newWeights);
+        setAlgorithmWeights(newWeights);
       }
     }
   };
 
-  const updatePointFromWeights = (newWeights) => {
-    const width = 400, height = 370, triangleSize = 140;
-    const centerX = width / 2, centerY = height / 2;
-    const v0 = { x: centerX, y: centerY - triangleSize }; // Personalization
-    const v1 = { x: centerX - triangleSize * Math.sqrt(3) / 2, y: centerY + triangleSize / 2 }; // Popularity
-    const v2 = { x: centerX + triangleSize * Math.sqrt(3) / 2, y: centerY + triangleSize / 2 }; // Diversity
-    const normalized = newWeights.map(w => w / 100);
-    const x = normalized[0] * v0.x + normalized[1] * v1.x + normalized[2] * v2.x;
-    const y = normalized[0] * v0.y + normalized[1] * v1.y + normalized[2] * v2.y;
-    setPoint({ x, y });
-  };
-
-  const handleWeightChange = (weights) => {
-    setAlgorithmWeights(weights);
-    const matchingPreset = presets.find(p =>
-      p.weights.every((w, i) => Math.abs(w - weights[i]) < 0.01)
-    );
-    setSelectedPreset(matchingPreset ? matchingPreset.name : 'custom');
-    //   setSelectedPreset(matchingPreset ? matchingPreset.name : 'custom');
-    // const newValue = Math.max(0, Math.min(100, parseFloat(value) || 0));
-    // setAlgorithmWeights(prev => {
-    //   const newWeights = [...prev];
-    //   newWeights[index] = newValue;
-    //   const otherIndices = [0, 1, 2].filter(i => i !== index);
-    //   const remaining = 100 - newValue;
-    //   const sumOthers = prev[otherIndices[0]] + prev[otherIndices[1]];
-    //   if (sumOthers > 0) {
-    //     newWeights[otherIndices[0]] = (prev[otherIndices[0]] / sumOthers) * remaining;
-    //     newWeights[otherIndices[1]] = (prev[otherIndices[1]] / sumOthers) * remaining;
-    //   } else {
-    //     newWeights[otherIndices[0]] = remaining / 2;
-    //     newWeights[otherIndices[1]] = remaining / 2;
-    //   }
-    //   const total = newWeights.reduce((a, b) => a + b, 0);
-    //   newWeights.forEach((_, i) => {
-    //     newWeights[i] = (newWeights[i] / total) * 100;
-    //   });
-    //   updatePointFromWeights(newWeights);
-    //   const matchingPreset = presets.find(p =>
-    //     p.weights.every((w, i) => Math.abs(w - newWeights[i]) < 0.01)
-    //   );
-    //   setSelectedPreset(matchingPreset ? matchingPreset.name : 'custom');
-    //   return newWeights.map(v => Math.round(v * 100) / 100);
-    // });
-  };
-
-  const updateWeightsFromPoint = (x, y) => {
-    const width = 400, height = 370, triangleSize = 140;
-    const centerX = width / 2, centerY = height / 2;
-    const v0 = { x: centerX, y: centerY - triangleSize }; // Personalization
-    const v1 = { x: centerX - triangleSize * Math.sqrt(3) / 2, y: centerY + triangleSize / 2 }; // Popularity
-    const v2 = { x: centerX + triangleSize * Math.sqrt(3) / 2, y: centerY + triangleSize / 2 }; // Diversity
-    const denom = (v1.y - v2.y) * (v0.x - v2.x) + (v2.x - v1.x) * (v0.y - v2.y);
-    const w0 = ((v1.y - v2.y) * (x - v2.x) + (v2.x - v1.x) * (y - v2.y)) / denom;
-    const w1 = ((v2.y - v0.y) * (x - v2.x) + (v0.x - v2.x) * (y - v2.y)) / denom;
-    const w2 = 1 - w0 - w1;
-    const weightsRaw = [w0, w1, w2].map(w => Math.max(0, Math.min(1, w)));
-    const total = weightsRaw.reduce((a, b) => a + b, 0);
-    const newWeights = total > 0 ? weightsRaw.map(w => (w / total) * 100) : [33.33, 33.33, 33.34];
-    setAlgorithmWeights(newWeights.map(v => Math.round(v * 100) / 100));
-    setSelectedPreset('custom');
+  const handleManualWeightChange = (index, value) => {
+    const newValue = Math.max(0, Math.min(100, parseFloat(value) || 0));
+    setAlgorithmWeights(prev => {
+      const newWeights = [...prev];
+      newWeights[index] = newValue;
+      const otherIndices = [0, 1, 2].filter(i => i !== index);
+      const remaining = 100 - newValue;
+      const sumOthers = prev[otherIndices[0]] + prev[otherIndices[1]];
+      if (sumOthers > 0) {
+        newWeights[otherIndices[0]] = (prev[otherIndices[0]] / sumOthers) * remaining;
+        newWeights[otherIndices[1]] = (prev[otherIndices[1]] / sumOthers) * remaining;
+      } else {
+        newWeights[otherIndices[0]] = remaining / 2;
+        newWeights[otherIndices[1]] = remaining / 2;
+      }
+      const total = newWeights.reduce((a, b) => a + b, 0);
+      newWeights.forEach((_, i) => {
+        newWeights[i] = (newWeights[i] / total) * 100;
+      });
+      const matchingPreset = presets.find(p =>
+        p.weights.every((w, i) => Math.abs(w - newWeights[i]) < 0.01)
+      );
+      setSelectedPreset(matchingPreset ? matchingPreset.name : 'custom');
+      return newWeights.map(v => Math.round(v * 100) / 100);
+    });
   };
 
   return (
@@ -190,19 +151,15 @@ const Preferences = () => {
           <div className="journey-style-placeholder-2">
             <TriangleControl
               weights={algorithmWeights}
-              setWeights={handleWeightChange}
-              point={point}
-              setPoint={(x, y) => {
-                setPoint({ x, y });
-                updateWeightsFromPoint(x, y);
-              }}
+              setWeights={setAlgorithmWeights}
+              setSelectedPreset={setSelectedPreset}
             />
             {/* <Compass position={position} setPosition={handlePositionChange} /> */}
           </div>
           <div className="journey-style-placeholder-3">
             <WeightInputs
               weights={algorithmWeights}
-              handleWeightChange={handleWeightChange}
+              handleWeightChange={handleManualWeightChange}
             />
             {/* <NumericControls position={position} onSetPosition={handlePositionChange} /> */}
           </div>
