@@ -4,16 +4,29 @@ import "../../../styles/TriangleControl.css";
 import { parameters, parameterColors } from '../../../data/constantData';
 
 const TriangleControl = ({ weights, setWeights, point, setPoint }) => {
-  const [hoveredParameter, setHoveredParameter] = useState(null);
+  const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const svgRef = useRef(null);
-  const width = 400;
-  const height = 370;
-  const triangleSize = 140;
-  const centerX = width / 2;
-  const centerY = height / 2;
+  const [size, setSize] = useState({ width: 400, height: 370 });
+  console.log("Size:", size);
 
   useEffect(() => {
+    const observer = new ResizeObserver(entries => {
+      for (let entry of entries) {
+        const { width, height } = entry.contentRect;
+        setSize({ width, height });
+      }
+    });
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const { width, height } = size;
+    const triangleSize = Math.min(width, height) * 0.35; // scales with container
+    const centerX = width / 2;
+    const centerY = height / 2;
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const svg = d3.select(svgRef.current)
@@ -23,6 +36,7 @@ const TriangleControl = ({ weights, setWeights, point, setPoint }) => {
     ctx.clearRect(0, 0, width, height);
     svg.selectAll('*').remove();
 
+    // background gradient
     ctx.fillStyle = '#f0f0f0';
     ctx.fillRect(0, 0, width, height);
 
@@ -129,19 +143,19 @@ const TriangleControl = ({ weights, setWeights, point, setPoint }) => {
       .attr('filter', 'url(#shadow)')
       .call(d3.drag()
         .on('drag', function (event) {
-          let x = event.x;
-          let y = event.y;
+        let x = event.x;
+        let y = event.y;
           const denom = (vertices[1].y - vertices[2].y) * (vertices[0].x - vertices[2].x) + (vertices[2].x - vertices[1].x) * (vertices[0].y - vertices[2].y);
           const w0 = ((vertices[1].y - vertices[2].y) * (x - vertices[2].x) + (vertices[2].x - vertices[1].x) * (y - vertices[2].y)) / denom;
           const w1 = ((vertices[2].y - vertices[0].y) * (x - vertices[2].x) + (vertices[0].x - vertices[2].x) * (y - vertices[2].y)) / denom;
-          const w2 = 1 - w0 - w1;
+        const w2 = 1 - w0 - w1;
           if (w0 < 0 || w1 < 0 || w2 < 0) {
             const weightsRaw = [w0, w1, w2].map(w => Math.max(0, w));
             const total = weightsRaw.reduce((a, b) => a + b, 0);
             const normalized = total > 0 ? weightsRaw.map(w => w / total) : [1 / 3, 1 / 3, 1 / 3];
             x = normalized[0] * vertices[0].x + normalized[1] * vertices[1].x + normalized[2] * vertices[2].x;
             y = normalized[0] * vertices[0].y + normalized[1] * vertices[1].y + normalized[2] * vertices[2].y;
-          }
+        }
           setPoint(x, y);
         })
       );
@@ -187,9 +201,9 @@ const TriangleControl = ({ weights, setWeights, point, setPoint }) => {
   }, [point, weights, setPoint]);
 
   return (
-    <div className="triangle-control-container">
-      <canvas ref={canvasRef} width={400} height={300} style={{ position: 'absolute', top: 0, left: 0 }} />
-      <svg ref={svgRef} style={{ position: 'absolute', top: 0, left: 0 }}></svg>
+    <div ref={containerRef} className="triangle-control-container" style={{ width: size.width, height: size.height }}>
+      <canvas ref={canvasRef} width={size.width} height={size.height} />
+      <svg ref={svgRef}></svg>
     </div>
   );
 };
