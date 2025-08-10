@@ -14,6 +14,7 @@ import TriangleControl from "./components/TriangleControl";
 import WeightInputs from "./components/WeightInputs";
 import RadarChart from "./components/RadarChart";
 import EditDimensionsButton from "./components/EditDimensionsButton";
+import PopularityToggle from "./components/PopularityToggle";
 // import Compass from "./components/Compass";
 // import NumericControls from "./components/NumericControls";
 
@@ -39,6 +40,7 @@ const Preferences = () => {
   const [key, setKey] = useState(userData.PreferenceMode || 'radar');
 
   const [algorithmWeights, setAlgorithmWeights] = useState(userData.AlgorithmWeights || [100, 0, 0]);
+  const [popularityToggleValue, setPopularityToggleValue] = useState(userData.PopularityToggle || "popular");
   // const [position, setPosition] = useState(userData.CompassPosition || { x: 0, y: 0 });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,6 +55,11 @@ const Preferences = () => {
     setAlgorithmWeights(newWeights);
     updateUserData(newWeights);
   };
+
+  const handlePopularityToggleChange = useCallback((newValue) => {
+    setPopularityToggleValue(newValue);
+    setUserData({ ...userData, PopularityToggle: newValue });
+  }, [userData]);
 
   // const handlePositionChange = (newPosition) => {
   //   setPosition(newPosition);
@@ -152,9 +159,16 @@ const Preferences = () => {
         // }}
         />
       </div>
+      <div>
+        <PopularityToggle
+          value={popularityToggleValue}
+          onChange={handlePopularityToggleChange}
+        />
+      </div>
       <div className="journey-style-placeholder-2">
         <TriangleControl
           weights={algorithmWeights}
+          popularityToggleValue={popularityToggleValue}
           setWeights={handleWeightChange}
           setSelectedPreset={setSelectedPreset}
         />
@@ -163,6 +177,7 @@ const Preferences = () => {
       <div className="journey-style-placeholder-3">
         <WeightInputs
           weights={algorithmWeights}
+          popularityToggleValue={popularityToggleValue}
           handleWeightChange={handleManualWeightChange}
         />
         {/* <NumericControls position={position} onSetPosition={handlePositionChange} /> */}

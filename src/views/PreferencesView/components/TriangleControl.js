@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as d3 from 'd3';
 import "../../../styles/TriangleControl.css";
-import { parameters, parameterColors } from '../../../data/constantData';
+import { popularityParameters, noveltyParameters, popularityParameterColors, noveltyParameterColors } from '../../../data/constantData';
 
-const TriangleControl = ({ weights, setWeights, setSelectedPreset }) => {
+const TriangleControl = ({ weights, popularityToggleValue, setWeights, setSelectedPreset }) => {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
   const svgRef = useRef(null);
@@ -89,6 +89,9 @@ const TriangleControl = ({ weights, setWeights, setSelectedPreset }) => {
     // background gradient
     ctx.fillStyle = '#f0f0f0';
     ctx.fillRect(0, 0, width, height);
+
+    const parameters = popularityToggleValue === "popular" ? popularityParameters : noveltyParameters;
+    const parameterColors = popularityToggleValue === "popular" ? popularityParameterColors : noveltyParameterColors;
 
     const vertices = [
       { x: centerX, y: centerY - triangleSize, color: d3.color(parameterColors[0]) },
@@ -258,7 +261,7 @@ const TriangleControl = ({ weights, setWeights, setSelectedPreset }) => {
         updateWeightsFromPoint(x, y);
       }
     });
-  }, [point, weights, size, updateWeightsFromPoint]);
+  }, [point, weights, size, updateWeightsFromPoint, popularityToggleValue]);
 
   return (
     <div ref={containerRef} className="triangle-control-container">

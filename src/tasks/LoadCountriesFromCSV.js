@@ -155,14 +155,12 @@ class LoadCountriesFromCSV {
 
         res.scores.individualScores = {
           personalization: personalizationScore,
-          popularity: popularityScore,
-          novelty: noveltyScore,
+          popularity: userData.PopularityToggle === "popular" ? popularityScore : noveltyScore,
         };
 
         res.scores.weights = {
           personalization: userData.AlgorithmWeights[0] / 100,
           popularity: userData.AlgorithmWeights[1] / 100,
-          novelty: 0,
         };
 
         res.scores.totalScore = this.calculateFinalScore(res.scores.individualScores, res.scores.weights);

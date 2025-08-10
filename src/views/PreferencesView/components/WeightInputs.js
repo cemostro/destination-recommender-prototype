@@ -1,14 +1,14 @@
 import React from 'react';
 import "../../../styles/WeightInputs.css";
-import { parameters, parameterColors } from '../../../data/constantData';
+import { popularityParameters, noveltyParameters, popularityParameterColors, noveltyParameterColors } from '../../../data/constantData';
 
-const WeightInputs = ({ weights, handleWeightChange }) => {
+const WeightInputs = ({ weights, popularityToggleValue, handleWeightChange }) => {
 
   return (
     <div className="weight-inputs-container">
-      {parameters.map((param, i) => (
+      {(popularityToggleValue === "popular" ? popularityParameters : noveltyParameters).map((param, i) => (
         <div key={param} className="weight-item">
-          <span className="color-dot" style={{ backgroundColor: parameterColors[i] }}></span>
+          <span className="color-dot" style={{ backgroundColor: (popularityToggleValue === "popular" ? popularityParameterColors : noveltyParameterColors)[i] }}></span>
           <label className="weight-label">{param}:</label>
           <input
             type="text"

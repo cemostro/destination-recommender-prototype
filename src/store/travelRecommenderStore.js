@@ -10,6 +10,7 @@ const useTravelRecommenderStore = create((set) => ({
         CompassPosition: { x: 0, y: 0 },
         PreferenceMode: "radar",
         AlgorithmWeights: [100, 0, 0],
+        PopularityToggle: "popular",
         Attributes: {
             Nature: {
                 weight: 1,

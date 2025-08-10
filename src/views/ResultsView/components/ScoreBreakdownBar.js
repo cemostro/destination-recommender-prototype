@@ -1,30 +1,35 @@
 import React from "react";
 import '../../../styles/ScoreBreakdownBar.css';
+import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
+import { popularityParameters, noveltyParameters, popularityParameterColors, noveltyParameterColors } from '../../../data/constantData';
 
 export const ScoreBreakdownBar = ({ scores }) => {
-    // Normalize weights for width percentages
+    const popularityToggleValue = useTravelRecommenderStore((state) => state.userData.PopularityToggle);
+
     const weights = { ...scores.weights }
-    const usePopularity = weights.novelty === 0;
+    const usePopularity = popularityToggleValue === "popular";
+    const parameters = usePopularity ? popularityParameters : noveltyParameters;
+    const parameterColors = usePopularity ? popularityParameterColors : noveltyParameterColors;
     const individualScores = { ...scores.individualScores };
 
     const segments = [
         {
-            label: "Personalized",
-            color: "#3498db",
+            label: parameters[0],
+            color: parameterColors[0],
             widthPercent: weights.personalization * 100,
             score: individualScores.personalization,
         },
         {
-            label: usePopularity ? "Popularity" : "Novelty",
-            color: "#e67e22",
-            widthPercent: (usePopularity ? weights.popularity : weights.novelty) * 100,
-            score: usePopularity ? individualScores.popularity : individualScores.novelty,
+            label: parameters[1],
+            color: parameterColors[1],
+            widthPercent: weights.popularity * 100,
+            score: individualScores.popularity,
         },
         {
-          label: "Diversity (ILD)",
-          color: "#2ecc71",
-          widthPercent: weights.ild * 100,
-          score: individualScores.ild,
+            label: parameters[2],
+            color: parameterColors[2],
+            widthPercent: weights.ild * 100,
+            score: individualScores.ild,
         },
     ];
 
