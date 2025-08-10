@@ -11,18 +11,18 @@ import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons'
 
 const TravelRecommender = () => {
   const [activeResult, setActiveResult] = useState(0);
-  // const [leftColumnOpen, setLeftColumnOpen] = useState(true);
-  // const [rightColumnOpen, setRightColumnOpen] = useState(true);
+  const [leftColumnOpen, setLeftColumnOpen] = useState(true);
+  const [rightColumnOpen, setRightColumnOpen] = useState(true);
 
   return (
     <div className="App">
       <Row style={{ height: "100%" }}>
-        {/* {leftColumnOpen && ( */}
-          <Col xs={8} style={{ height: "100%", paddingRight: 0 }}>
+        {leftColumnOpen && (
+          <Col style={{ height: "100%", paddingRight: 0 }}>
             <Preferences />
           </Col>
-        {/* )} */}
-        {/* <Col xs={6 + (leftColumnOpen ? 0 : 3) + (rightColumnOpen ? 0 : 3)} style={{ height: "100%", padding: 0 }}>
+        )}
+        <Col xs={5 + (leftColumnOpen ? 0 : 3) + (rightColumnOpen ? 0 : 3)} style={{ height: "100%", padding: 0 }}>
           <div style={{ display: "grid", gridTemplateColumns: "10px 1fr 10px", height: "100%" }}>
             <div className="expand-bar" onClick={() => setLeftColumnOpen(oldState => !oldState)}>
               <FontAwesomeIcon icon={leftColumnOpen ? faAngleLeft : faAngleRight} />
@@ -32,12 +32,12 @@ const TravelRecommender = () => {
               <FontAwesomeIcon icon={rightColumnOpen ? faAngleRight : faAngleLeft} />
             </div>
           </div>
-        </Col> */}
-        {/* {rightColumnOpen && ( */}
+        </Col>
+        {rightColumnOpen && (
           <Col style={{ height: "100%" }} className='right-column'>
             <Results activeResult={activeResult} />
           </Col>
-        {/* )} */}
+        )}
       </Row>
       <Tooltip id="prio-switch-tooltip" style={{ width: "300px", zIndex: 99999 }} />
       <Tooltip id="additional-info-tooltip" style={{ width: "300px", zIndex: 99999 }} place="bottom" />

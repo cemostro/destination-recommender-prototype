@@ -105,66 +105,61 @@ const Preferences = () => {
     <div style={{ height: "100%", overflowY: "auto", overflowX: "hidden", paddingRight: "5px" }}>
       <p style={{ textAlign: "left", paddingTop: "10px", fontWeight: "700", fontSize: "1.1em" }}>DestiRec - Travel Destination Recommender System</p>
       <hr />
-      <Row className="content-row">
-        <Col xs={6} style={{ borderRight: "1px solid rgba(255, 255, 255, 0.25)" }}>
-          <Tabs
-            activeKey={key}
-            id="mode"
-            onSelect={(k) => { setKey(k); setUserData({ ...userData, PreferenceMode: k, PresetType: [] }); }}
-            className="mb-3"
-          >
-            <Tab eventKey="preset" title="Presets">
-              <PresetTypesContainer />
-            </Tab>
-            <Tab eventKey="slider" title="Preference Sliders">
-              <CustomizationContainer />
-            </Tab>
-            <Tab eventKey="radar" title="Taste Map">
-              <p style={{ textAlign: "left" }}>Craft your travel taste map:</p>
-              <div className="taste-map-placeholder">
-                <RadarChart />
-              </div>
-              <div className="settings-button-placeholder">
-                <EditDimensionsButton />
-              </div>
-            </Tab>
-          </Tabs>
-        </Col>
-        <Col xs={6} className="right-column">
-          <p style={{ textAlign: "left" }}>Set your travel compass:</p>
-          <div className="journey-style-placeholder-1"  >
-            <PresetSelect
-              value={selectedPreset}
-              onChange={(e) => handlePresetChange(e)}
-            // onSurprise={() => {
-            //   const randomX = (Math.random() * 2 - 1).toFixed(2);
-            //   const randomY = (Math.random() * 2 - 1).toFixed(2);
-            //   handlePositionChange({ x: randomX, y: randomY });
-            // }}
-            // onReset={() => {
-            //   setPosition({ x: 0, y: 0 });
-            //   setSelectedPreset('personalized');
-            //   updateUserData({ x: 0, y: 0 });
-            // }}
-            />
+      <Tabs
+        activeKey={key}
+        id="mode"
+        onSelect={(k) => { setKey(k); setUserData({ ...userData, PreferenceMode: k, PresetType: [] }); }}
+        className="mb-3"
+      >
+        <Tab eventKey="preset" title="Presets">
+          <PresetTypesContainer />
+        </Tab>
+        <Tab eventKey="slider" title="Preference Sliders">
+          <CustomizationContainer />
+        </Tab>
+        <Tab eventKey="radar" title="Taste Map">
+          <p style={{ textAlign: "left" }}>Craft your travel taste map:</p>
+          <div className="taste-map-placeholder">
+            <RadarChart />
           </div>
-          <div className="journey-style-placeholder-2">
-            <TriangleControl
-              weights={algorithmWeights}
-              setWeights={setAlgorithmWeights}
-              setSelectedPreset={setSelectedPreset}
-            />
-            {/* <Compass position={position} setPosition={handlePositionChange} /> */}
+          <div className="settings-button-placeholder">
+            <EditDimensionsButton />
           </div>
-          <div className="journey-style-placeholder-3">
-            <WeightInputs
-              weights={algorithmWeights}
-              handleWeightChange={handleManualWeightChange}
-            />
-            {/* <NumericControls position={position} onSetPosition={handlePositionChange} /> */}
-          </div>
-        </Col>
-      </Row>
+        </Tab>
+      </Tabs>
+      <hr />
+      <p style={{ textAlign: "left" }}>Set your travel compass:</p>
+      <div className="journey-style-placeholder-1"  >
+        <PresetSelect
+          value={selectedPreset}
+          onChange={(e) => handlePresetChange(e)}
+        // onSurprise={() => {
+        //   const randomX = (Math.random() * 2 - 1).toFixed(2);
+        //   const randomY = (Math.random() * 2 - 1).toFixed(2);
+        //   handlePositionChange({ x: randomX, y: randomY });
+        // }}
+        // onReset={() => {
+        //   setPosition({ x: 0, y: 0 });
+        //   setSelectedPreset('personalized');
+        //   updateUserData({ x: 0, y: 0 });
+        // }}
+        />
+      </div>
+      <div className="journey-style-placeholder-2">
+        <TriangleControl
+          weights={algorithmWeights}
+          setWeights={setAlgorithmWeights}
+          setSelectedPreset={setSelectedPreset}
+        />
+        {/* <Compass position={position} setPosition={handlePositionChange} /> */}
+      </div>
+      <div className="journey-style-placeholder-3">
+        <WeightInputs
+          weights={algorithmWeights}
+          handleWeightChange={handleManualWeightChange}
+        />
+        {/* <NumericControls position={position} onSetPosition={handlePositionChange} /> */}
+      </div>
 
       {/* <div style={{ padding: "10px 0" }}>
         <Budget />
