@@ -38,16 +38,21 @@ const Preferences = () => {
   const [selectedPreset, setSelectedPreset] = useState('personalized');
   const [key, setKey] = useState(userData.PreferenceMode || 'radar');
 
-  const [algorithmWeights, setAlgorithmWeights] = useState([100, 0, 0]);
+  const [algorithmWeights, setAlgorithmWeights] = useState(userData.AlgorithmWeights || [100, 0, 0]);
   // const [position, setPosition] = useState(userData.CompassPosition || { x: 0, y: 0 });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateUserData = useCallback(
-    debounce((position) => {
-      setUserData({ ...userData, CompassPosition: position });
+    debounce((weights) => {
+      setUserData({ ...userData, AlgorithmWeights: weights });
     }, 500),
     [userData]
   );
+
+  const handleWeightChange = (newWeights) => {
+    setAlgorithmWeights(newWeights);
+    updateUserData(newWeights);
+  };
 
   // const handlePositionChange = (newPosition) => {
   //   setPosition(newPosition);
@@ -69,7 +74,7 @@ const Preferences = () => {
       const preset = presets.find(p => p.value === presetName);
       if (preset) {
         const newWeights = [...preset.weights];
-        setAlgorithmWeights(newWeights);
+        handleWeightChange(newWeights);
       }
     }
   };
@@ -97,7 +102,9 @@ const Preferences = () => {
         p.weights.every((w, i) => Math.abs(w - newWeights[i]) < 0.01)
       );
       setSelectedPreset(matchingPreset ? matchingPreset.name : 'custom');
-      return newWeights.map(v => Math.round(v * 100) / 100);
+      const newWeightsRounded = newWeights.map(v => Math.round(v * 100) / 100);
+      updateUserData(newWeightsRounded);
+      return newWeightsRounded;
     });
   };
 
@@ -148,7 +155,7 @@ const Preferences = () => {
       <div className="journey-style-placeholder-2">
         <TriangleControl
           weights={algorithmWeights}
-          setWeights={setAlgorithmWeights}
+          setWeights={handleWeightChange}
           setSelectedPreset={setSelectedPreset}
         />
         {/* <Compass position={position} setPosition={handlePositionChange} /> */}

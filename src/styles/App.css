@@ -113,6 +113,11 @@ input.stay-days {
   margin-bottom: -50px;
 }
 
+.journey-style-placeholder-3 {
+  z-index: 1;
+  position: relative;
+}
+
 
 @keyframes App-logo-spin {
   from {

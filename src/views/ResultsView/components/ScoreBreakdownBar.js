@@ -4,16 +4,15 @@ import '../../../styles/ScoreBreakdownBar.css';
 export const ScoreBreakdownBar = ({ scores }) => {
     // Normalize weights for width percentages
     const weights = { ...scores.weights }
-    const useFiltered = weights.dissimilarity === 0;
     const usePopularity = weights.novelty === 0;
     const individualScores = { ...scores.individualScores };
 
     const segments = [
         {
-            label: useFiltered ? "Personalized" : "Dissimilarity",
+            label: "Personalized",
             color: "#3498db",
-            widthPercent: (useFiltered ? weights.preference : weights.dissimilarity) * 100,
-            score: useFiltered ? individualScores.preference : individualScores.dissimilarity,
+            widthPercent: weights.personalization * 100,
+            score: individualScores.personalization,
         },
         {
             label: usePopularity ? "Popularity" : "Novelty",

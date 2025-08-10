@@ -150,35 +150,22 @@ class LoadCountriesFromCSV {
           totalAttrScore = { score: res.scores.presetTypeScore, weight: userData.PresetType.length };
         }
 
-        const preferenceScore = totalAttrScore.score / totalAttrScore.weight;
-        const dissimilarityScore = 100 - preferenceScore;
-
+        const personalizationScore = totalAttrScore.score / totalAttrScore.weight;
         const popularityScore = res.popularity;
         const noveltyScore = 100 - res.popularity;
 
-        const popularityWeight = userData.CompassPosition.x; // -1 to 1
-        const diversityWeight = userData.CompassPosition.y; // -1 to 1
-        // console.log(`Compass Position: x=${popularityWeight}, y=${diversityWeight}`);
-
-        let preferenceWeight = Math.max(0, (diversityWeight + 0.5) / 1.5); // -0.5 → 0, 1 → 1
-        let dissimilarityWeight = Math.max(0, (-0.5 - diversityWeight) / 0.5); // -0.5 → 0, -1 → 1
-
-        let popularityScoreWeight = Math.max(0, popularityWeight); // 0 to 1
-        let noveltyScoreWeight = Math.max(0, -popularityWeight); // 0 to 1
-
         res.scores.individualScores = {
-          preference: preferenceScore,
-          dissimilarity: dissimilarityScore,
+          personalization: personalizationScore,
           popularity: popularityScore,
           novelty: noveltyScore,
         };
 
-        res.scores.weights = this.normalizeWeights({
-          preference: preferenceWeight,
-          dissimilarity: dissimilarityWeight,
-          popularity: popularityScoreWeight,
-          novelty: noveltyScoreWeight,
-        });
+        res.scores.weights = {
+          personalization: userData.AlgorithmWeights[0] / 100,
+          popularity: userData.AlgorithmWeights[1] / 100,
+          novelty: 0,
+          // diversity: userData.AlgorithmWeights[2] / 100,
+        };
 
         res.scores.totalScore = this.calculateFinalScore(res.scores.individualScores, res.scores.weights);
 
@@ -206,7 +193,7 @@ class LoadCountriesFromCSV {
         if (i === j) continue;
 
         const other = topResults[j];
-        const dissimilarity = this.dissimilarityScore(current.qualifications, other.qualifications);
+        const dissimilarity = this.dissimilarityScore(current, other);
         sumDissimilarity += dissimilarity;
         count++;
       }
@@ -214,14 +201,13 @@ class LoadCountriesFromCSV {
       const avgDissimilarity = count > 0 ? sumDissimilarity / count : 0;
       const mmrScore = avgDissimilarity; // 0 = similar to others, 100 = diverse
 
-      const diversityWeight = userData.CompassPosition.y;
-      const ildWeight = 1 - (diversityWeight + 1) / 2; // maps -1 to 1 to 0 to 1
+      const ildWeight = userData.AlgorithmWeights[2] / 100;
 
-      const normalizedWeights = this.normalizeWeights({...current.scores.weights, ild: ildWeight });
+      const newWeights = {...current.scores.weights, ild: ildWeight };
 
-      current.scores.totalScore = this.calculateFinalScore({...current.scores.individualScores, ild: mmrScore }, normalizedWeights);
+      current.scores.totalScore = this.calculateFinalScore({...current.scores.individualScores, ild: mmrScore }, newWeights);
       current.scores.individualScores.ild = mmrScore;
-      current.scores.weights = normalizedWeights;
+      current.scores.weights = newWeights;
     }
 
     // Normalize ILD scores to a 0–100 scale
@@ -345,7 +331,7 @@ class LoadCountriesFromCSV {
     return 0;
   };
 
-  dissimilarityScore = (qualifications1, qualifications2) => {
+  dissimilarityScore = (current, other) => {
     const keys = [
       "nature", "architecture", "hiking", "wintersports", "beach",
       "culture", "culinary", "entertainment", "shopping"
@@ -354,12 +340,16 @@ class LoadCountriesFromCSV {
     let totalDiff = 0;
 
     for (const key of keys) {
-      const v1 = qualifications1[key];
-      const v2 = qualifications2[key];
+      const v1 = current.qualifications[key];
+      const v2 = other.qualifications[key];
       totalDiff += Math.abs(v1 - v2);
     }
 
-    return totalDiff / keys.length;
+    if (current.country !== other.country) {
+      totalDiff += 200;
+    }
+
+    return totalDiff / (keys.length + 2);
   };
 
   getPriceGroup = (price) => {

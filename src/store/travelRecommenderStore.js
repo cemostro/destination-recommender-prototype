@@ -9,6 +9,7 @@ const useTravelRecommenderStore = create((set) => ({
         PresetType: [],
         CompassPosition: { x: 0, y: 0 },
         PreferenceMode: "radar",
+        AlgorithmWeights: [100, 0, 0],
         Attributes: {
             Nature: {
                 weight: 1,
