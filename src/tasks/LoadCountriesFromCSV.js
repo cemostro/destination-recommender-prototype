@@ -16,7 +16,6 @@ class LoadCountriesFromCSV {
     });
   };
   processCountries = (countryScores, userData, setCountries, setResults) => {
-
     for (let i = 0; i < this.mapCountries.length; i++) {
       const mapCountry = this.mapCountries[i];
       const scoreCountry = countryScores.find(
@@ -164,7 +163,6 @@ class LoadCountriesFromCSV {
           personalization: userData.AlgorithmWeights[0] / 100,
           popularity: userData.AlgorithmWeights[1] / 100,
           novelty: 0,
-          // diversity: userData.AlgorithmWeights[2] / 100,
         };
 
         res.scores.totalScore = this.calculateFinalScore(res.scores.individualScores, res.scores.weights);
@@ -173,50 +171,57 @@ class LoadCountriesFromCSV {
         this.allResults.push(res);
       }
     }
+
+    // Calculate global diversity
+    for (let i = 0; i < this.allResults.length; i++) {
+      const current = this.allResults[i];
+      const ildScore = this.calculateILDScore(current, this.allResults);
+      current.scores.individualScores.ild = ildScore;
+      current.scores.weights.ild = userData.AlgorithmWeights[2] / 100;
+    }
+
+    // Normalize global diversity to 0-100
+    const maxGlobalDiv = Math.max(...this.allResults.map(d => d.scores.individualScores.ild));
+    this.allResults.forEach(res => {
+      res.scores.individualScores.ild = maxGlobalDiv > 0 ? (res.scores.individualScores.ild / maxGlobalDiv) * 100 : 0;
+      res.scores.totalScore = this.calculateFinalScore(res.scores.individualScores, res.scores.weights);
+      // Update score in mapCountries
+      const mapCountry = this.mapCountries.find(c => c.properties.u_name === res.uname);
+      if (mapCountry) {
+        mapCountry.properties.result = res;
+      }
+    });
+
+    this.allResults = this.allResults.filter((a) => a.scores.totalScore > 0);
+    this.allResults.sort((a, b) => b.scores.totalScore - a.scores.totalScore);
+    const topResults = this.allResults.slice(0, 20);
+
+    for (let i = 0; i < topResults.length; i++) {
+      const current = topResults[i];
+      const avgDissimilarity = this.calculateILDScore(current, topResults);
+
+      current.scores.totalScore = this.calculateFinalScore({ ...current.scores.individualScores, ild: avgDissimilarity }, current.scores.weights);
+      current.scores.individualScores.ild = avgDissimilarity;
+    }
+
+    // Normalize ILD scores to a 0–100 scale
+    const maxILD = Math.max(...topResults.map(res => res.scores.individualScores.ild));
+    topResults.forEach(res => {
+      res.scores.individualScores.ild = maxILD > 0 ? (res.scores.individualScores.ild / maxILD) * 100 : 0;
+      res.scores.totalScore = this.calculateFinalScore(res.scores.individualScores, res.scores.weights);
+      // Update score in mapCountries
+      const mapCountry = this.mapCountries.find(c => c.properties.u_name === res.uname);
+      if (mapCountry) {
+        mapCountry.properties.result = res;
+      }
+    });
+
     this.mapCountries.sort(
       (a, b) =>
         b.properties.result.scores.totalScore -
         a.properties.result.scores.totalScore
     );
     setCountries(this.mapCountries);
-    this.allResults.sort((a, b) => b.scores.totalScore - a.scores.totalScore);
-    this.allResults = this.allResults.filter((a) => a.scores.totalScore > 0);
-
-    const topResults = this.allResults.slice(0, 20);
-
-    for (let i = 0; i < topResults.length; i++) {
-      const current = topResults[i];
-      let sumDissimilarity = 0;
-      let count = 0;
-
-      for (let j = 0; j < topResults.length; j++) {
-        if (i === j) continue;
-
-        const other = topResults[j];
-        const dissimilarity = this.dissimilarityScore(current, other);
-        sumDissimilarity += dissimilarity;
-        count++;
-      }
-
-      const avgDissimilarity = count > 0 ? sumDissimilarity / count : 0;
-      const mmrScore = avgDissimilarity; // 0 = similar to others, 100 = diverse
-
-      const ildWeight = userData.AlgorithmWeights[2] / 100;
-
-      const newWeights = {...current.scores.weights, ild: ildWeight };
-
-      current.scores.totalScore = this.calculateFinalScore({...current.scores.individualScores, ild: mmrScore }, newWeights);
-      current.scores.individualScores.ild = mmrScore;
-      current.scores.weights = newWeights;
-    }
-
-    // Normalize ILD scores to a 0–100 scale
-    const maxILD = Math.max(...topResults.map(d => d.scores.individualScores.ild));
-    topResults.forEach(d => {
-      d.scores.individualScores.ild = maxILD > 0 ? (d.scores.individualScores.ild / maxILD) * 100 : 0;
-      d.scores.totalScore = this.calculateFinalScore(d.scores.individualScores, d.scores.weights);
-    });
-
     topResults.sort((a, b) => b.scores.totalScore - a.scores.totalScore);
     setResults(topResults.slice(0, 10));
   };
@@ -330,6 +335,19 @@ class LoadCountriesFromCSV {
     // const pGroup = this.getPriceGroup(price);
     return 0;
   };
+
+  calculateILDScore = (current, allCountries) => {
+    let sumDissimilarity = 0;
+    let count = 0;
+    for (let i = 0; i < allCountries.length; i++) {
+      const other = allCountries[i];
+      if (current.region === other.region) continue;
+      const dissimilarity = this.dissimilarityScore(current, other);
+      sumDissimilarity += dissimilarity;
+      count++;
+    }
+    return count > 0 ? sumDissimilarity / count : 0;
+  }
 
   dissimilarityScore = (current, other) => {
     const keys = [
