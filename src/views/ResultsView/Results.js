@@ -26,7 +26,7 @@ export const Results = ({ activeResult }) => {
     <div style={{ padding: "10px 0", height: "100%", overflow: "hidden" }}>
       <p style={{ textAlign: "left" }}>Best destinations for you:</p>
       {results.length > 0 ? (
-        <div style={{ overflow: "auto", height: "90%" }} ref={accordElem}>
+        <div style={{ overflowX: "hidden", height: "95%", paddingRight: "5px" }} ref={accordElem}>
           <Accordion activeKey={activeIndex}>
             {results?.map((item, index) => (
               <Accordion.Item eventKey={index} key={index}>

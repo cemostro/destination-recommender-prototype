@@ -47,6 +47,28 @@ input.stay-days {
   color: #FFFFFF;
 }
 
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+
+::-webkit-scrollbar-track {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ffffff9c;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
 .dark-theme {
   color: #000;
 }
@@ -85,16 +107,6 @@ input.stay-days {
   cursor: pointer;
 }
 
-.right-column {
-  overflow-y: hidden;
-  padding: 0 1rem;
-  min-width: 14rem;
-  background-color: #193D4A;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
 .journey-style-placeholder-2 {
   width: 100%;
   aspect-ratio: 5 / 4;
@@ -115,20 +127,30 @@ input.stay-days {
 /* accordions */
 .accordion-button {
   border-radius: 20px;
-  border: 1px solid #193D4A;
+  --bs-accordion-inner-border-radius: 20px;
+  --bs-accordion-btn-bg: transparent;
+  --bs-accordion-btn-color: #FFFFFF;
+  border: 1px solid #336273;
   background: linear-gradient(to right, #193D4A 0%, #1D5163 100%);
-  color: #fff
 }
 
 .accordion-button:not(.collapsed) {
-  background: transparent;
-  color: #FFFFFF;
+  --bs-accordion-active-color: #FFFFFF;
+  --bs-accordion-active-bg: transparent;
   box-shadow: none;
   border-color: rgba(255, 255, 255, 0.7);
 }
 
 .accordion-button:focus {
   box-shadow: none;
+}
+
+.accordion-button::after {
+  --bs-accordion-btn-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPg0KICA8cGF0aCBkPSJNMiA1TDggMTFMMTQgNSIvPg0KPC9zdmc+");
+}
+
+.accordion-button:not(.collapsed)::after {
+  --bs-accordion-btn-active-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPg0KICA8cGF0aCBkPSJNMiA1TDggMTFMMTQgNSIvPg0KPC9zdmc+")
 }
 
 .accordion-item {
@@ -149,5 +171,5 @@ input.stay-days {
 }
 
 .accordion-header {
-  margin: 16px 0;
+  margin: 13px 0;
 }
