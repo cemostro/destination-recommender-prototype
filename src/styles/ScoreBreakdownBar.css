@@ -9,17 +9,43 @@
   height: 32px;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-  font-family: sans-serif;
+  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  color: white;
+  user-select: none;
 }
 
 .score-bar-segment {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 0 4px;
+  font-size: 14px;
   white-space: nowrap;
+  text-shadow: 0 0 2px rgba(0,0,0,0.6);
+}
+
+.segment-label {
+  pointer-events: none;
+  color: white;
+}
+
+.score-bar-legend {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-around;
+  font-size: 13px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+}
+
+.legend-color-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
 }

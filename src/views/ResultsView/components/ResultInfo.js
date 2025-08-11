@@ -8,8 +8,34 @@ import { RadarChartComparison } from "./RadarChartComparison";
 import { ScoreBreakdownBar } from "./ScoreBreakdownBar";
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 
+const StarRating = ({ popularity }) => {
+  const totalStars = 5;
+  const filledStars = Math.round((popularity / 100) * totalStars);
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span >Destination Popularity:</span>
+      <div style={{ display: 'inline-flex', gap: 2 }}>
+        {[...Array(totalStars)].map((_, i) => (
+          <span
+            key={i}
+            style={{
+              color: i < filledStars ? '#FFC107' : '#ccc',
+              fontSize: 18,
+              userSelect: 'none',
+            }}
+          >
+            ★
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
 const ResultInfo = ({ country, label }) => {
   const userData = useTravelRecommenderStore((state) => state.userData);
+  console.log(country)
   const [scores, setScores] = useState([]);
   const loadData = () => {
     let s;
@@ -48,12 +74,22 @@ const ResultInfo = ({ country, label }) => {
         countryName={country.country}
         region={country.region}
       />
-      <p style={{ paddingTop: "10px" }}>
+      {/* <p style={{ paddingTop: "10px" }}>
         {`Budget Level: ${(country.budgetLevel / 10).toFixed(0)} (${budgetLevelToText(country.budgetLevel)}), your Preference: ${(userData.Budget / 10).toFixed(0)} (${budgetLevelToText(userData.Budget)})`}
-      </p>
+      </p> */}
+      <div
+        style={{
+          paddingTop: "10px",
+          width: "fit-content",
+          margin: "10px auto 0 auto",
+          textAlign: "center",
+        }}
+      >
+        <StarRating popularity={country.popularity} />
+      </div>
       <hr />
-      <TravelMonthsComponent countryName={country.region} travelMonths={country.travelMonths} />
-      <hr />
+      {/* <TravelMonthsComponent countryName={country.region} travelMonths={country.travelMonths} />
+      <hr /> */}
       {userData.PreferenceMode === 'radar' ? (
         <>
           <p style={{ fontSize: "x-small" }}>

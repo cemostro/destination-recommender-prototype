@@ -3,6 +3,13 @@ import '../../../styles/ScoreBreakdownBar.css';
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 import { popularityParameters, noveltyParameters, popularityParameterColors, noveltyParameterColors } from '../../../data/constantData';
 
+const abbreviations = {
+    'Personalization': 'Pers',
+    'Popular Spots': 'Pop',
+    'Less Popular Spots': 'LP',
+    'List Diversity': 'Div',
+};
+
 export const ScoreBreakdownBar = ({ scores }) => {
     const popularityToggleValue = useTravelRecommenderStore((state) => state.userData.PopularityToggle);
 
@@ -16,39 +23,77 @@ export const ScoreBreakdownBar = ({ scores }) => {
         {
             label: parameters[0],
             color: parameterColors[0],
-            widthPercent: weights.personalization * 100,
+            weight: weights.personalization,
             score: individualScores.personalization,
+            widthPercent: weights.personalization * individualScores.personalization,
         },
         {
             label: parameters[1],
             color: parameterColors[1],
-            widthPercent: weights.popularity * 100,
+            weight: weights.popularity,
             score: individualScores.popularity,
+            widthPercent: weights.popularity * individualScores.popularity,
         },
         {
             label: parameters[2],
             color: parameterColors[2],
-            widthPercent: weights.ild * 100,
+            weight: weights.ild,
             score: individualScores.ild,
+            widthPercent: weights.ild * individualScores.ild,
         },
     ];
 
+    const remainingWidth = 100 - segments.reduce((sum, seg) => sum + seg.widthPercent, 0);
+    if (remainingWidth > 0) {
+        segments.push({
+            label: 'Remaining',
+            color: '#d3d3d3',
+            widthPercent: remainingWidth,
+        });
+    }
+
     return (
         <div className="score-bar-container">
-            <div className="score-bar">
-                {segments.filter((seg) => seg.widthPercent > 0)
-                    .map((seg, idx) => (
+            <div
+                className="score-bar"
+            >
+                {segments.filter(seg => seg.widthPercent > 0).map((seg, idx) => {
+                    const showFullLabel = seg.widthPercent > 50;
+                    const labelText = seg.score
+                        ? (showFullLabel
+                            ? `${seg.label}: ${seg.score.toFixed(2)}`
+                            : `${abbreviations[seg.label]}: ${seg.score.toFixed(2)}`)
+                        : '';
+
+                    return (
                         <div
                             key={idx}
                             className="score-bar-segment"
                             style={{
                                 width: `${seg.widthPercent}%`,
                                 backgroundColor: seg.color,
+                                transition: 'width 0.5s ease',
                             }}
+                            title={seg.score ? `${seg.label} score: ${seg.score.toFixed(2)}/100` : undefined}
                         >
-                            <span className="segment-label">
-                                {seg.label}: {seg.score.toFixed(2)}
-                            </span>
+                            <span className="segment-label">{labelText}</span>
+                        </div>
+                    );
+                })}
+
+            </div>
+
+            <div className="score-bar-legend">
+                {segments
+                    .filter(seg => seg.weight > 0)
+                    .map((seg, idx) => (
+                        <div key={idx} className="legend-item">
+                            <span
+                                className="legend-color-box"
+                                style={{ backgroundColor: seg.color }}
+                            />
+                            <span className="legend-label">{seg.label}</span>:&nbsp;
+                            <span className="legend-score">{seg.score.toFixed(2)}</span>
                         </div>
                     ))}
             </div>
