@@ -5,33 +5,9 @@ import { NoviceScores } from "./NoviceScores";
 import { PieChartComponent } from "./PieChartComponent";
 import { TravelMonthsComponent } from "./TravelMonthsComponent";
 import { RadarChartComparison } from "./RadarChartComparison";
-import { ScoreBreakdownBar } from "./ScoreBreakdownBar";
+import { ScoreBreakdownBar } from "../../SharedComponents/ScoreBreakdownBar";
+import { PopularityRating } from "../../SharedComponents/PopularityRating";
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
-
-const StarRating = ({ popularity }) => {
-  const totalStars = 5;
-  const filledStars = Math.round((popularity / 100) * totalStars);
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span >Destination Popularity:</span>
-      <div style={{ display: 'inline-flex', gap: 2 }}>
-        {[...Array(totalStars)].map((_, i) => (
-          <span
-            key={i}
-            style={{
-              color: i < filledStars ? '#FFC107' : '#ccc',
-              fontSize: 18,
-              userSelect: 'none',
-            }}
-          >
-            ★
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 
 const ResultInfo = ({ country, label }) => {
   const userData = useTravelRecommenderStore((state) => state.userData);
@@ -85,7 +61,7 @@ const ResultInfo = ({ country, label }) => {
           textAlign: "center",
         }}
       >
-        <StarRating popularity={country.popularity} />
+        <PopularityRating popularity={country.popularity} />
       </div>
       <hr />
       {/* <TravelMonthsComponent countryName={country.region} travelMonths={country.travelMonths} />
@@ -132,8 +108,9 @@ const ResultInfo = ({ country, label }) => {
         </>
       )}
       <hr />
-
-      <ScoreBreakdownBar scores={country.scores} />
+      <div>
+        <ScoreBreakdownBar scores={country.scores} displayLegend={true} />
+      </div>
 
       <hr />
       <p>Overall score: {country.scores.totalScore}/100</p>

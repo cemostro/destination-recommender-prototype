@@ -1,9 +1,11 @@
 import React from "react";
 import { AttributeScore } from "./AttributeScore";
 import { TravelMonthScore } from "../../SharedComponents/TravelMonthScore";
+import { PopularityRating } from "../../SharedComponents/PopularityRating";
+import { ScoreBreakdownBar } from "../../SharedComponents/ScoreBreakdownBar";
 import { Row, Col } from "react-bootstrap";
 
-export const DetailScores = ({ scores, travelMonths, budgetLevel }) => {
+export const DetailScores = ({ scores, popularity, countryScores, travelMonths, budgetLevel }) => {
   return (
     <div>
       <div
@@ -14,13 +16,17 @@ export const DetailScores = ({ scores, travelMonths, budgetLevel }) => {
           color: "#000",
         }}
       >
+        <div>
+          <ScoreBreakdownBar scores={countryScores} displayLegend={false} />
+        </div>
         <div style={{ width: "100%" }}>
-          <p style={{ margin: 0 }}>Budget Level: {`${(budgetLevel / 10).toFixed(0)} (${budgetLevel < 40 ? "Low" : budgetLevel < 80 ? "Medium" : "High"})`}</p>
+          {/* <p style={{ margin: 0 }}>Budget Level: {`${(budgetLevel / 10).toFixed(0)} (${budgetLevel < 40 ? "Low" : budgetLevel < 80 ? "Medium" : "High"})`}</p> */}
+          <PopularityRating popularity={popularity} />
           <hr style={{ marginBottom: "1.2rem", marginTop: 0 }} />
         </div>
-        <div style={{ marginBottom: "10px" }}>
+        {/* <div style={{ marginBottom: "10px" }}>
           <TravelMonthScore travelMonths={travelMonths} showMatches={false} />
-        </div>
+        </div> */}
         <div>
           {scores.map((entry, index) => (
             <AttributeScore score={entry} index={index} key={index} />

@@ -1,7 +1,7 @@
 import React from "react";
-import '../../../styles/ScoreBreakdownBar.css';
-import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
-import { popularityParameters, noveltyParameters, popularityParameterColors, noveltyParameterColors } from '../../../data/constantData';
+import '../../styles/ScoreBreakdownBar.css';
+import useTravelRecommenderStore from "../../store/travelRecommenderStore";
+import { popularityParameters, noveltyParameters, popularityParameterColors, noveltyParameterColors } from '../../data/constantData';
 
 const abbreviations = {
     'Personalization': 'Pers',
@@ -10,7 +10,7 @@ const abbreviations = {
     'List Diversity': 'Div',
 };
 
-export const ScoreBreakdownBar = ({ scores }) => {
+export const ScoreBreakdownBar = ({ scores, displayLegend }) => {
     const popularityToggleValue = useTravelRecommenderStore((state) => state.userData.PopularityToggle);
 
     const weights = { ...scores.weights }
@@ -82,21 +82,23 @@ export const ScoreBreakdownBar = ({ scores }) => {
                 })}
 
             </div>
+            {displayLegend && (
+                <div className="score-bar-legend">
+                    {segments
+                        .filter(seg => seg.weight > 0)
+                        .map((seg, idx) => (
+                            <div key={idx} className="legend-item">
+                                <span
+                                    className="legend-color-box"
+                                    style={{ backgroundColor: seg.color }}
+                                />
+                                <span className="legend-label">{seg.label}</span>:&nbsp;
+                                <span className="legend-score">{seg.score.toFixed(2)}</span>
+                            </div>
+                        ))}
+                </div>
+            )}
 
-            <div className="score-bar-legend">
-                {segments
-                    .filter(seg => seg.weight > 0)
-                    .map((seg, idx) => (
-                        <div key={idx} className="legend-item">
-                            <span
-                                className="legend-color-box"
-                                style={{ backgroundColor: seg.color }}
-                            />
-                            <span className="legend-label">{seg.label}</span>:&nbsp;
-                            <span className="legend-score">{seg.score.toFixed(2)}</span>
-                        </div>
-                    ))}
-            </div>
         </div>
     );
 };

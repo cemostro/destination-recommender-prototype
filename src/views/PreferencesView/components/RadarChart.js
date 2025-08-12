@@ -89,7 +89,8 @@ const RadarChart = () => {
 
         const points = attributes.map((_, i) => {
             const angle = (i / attributes.length) * 2 * Math.PI - Math.PI / 2;
-            const r = (values[i] / 100) * radius;
+            const displayValue = values[i] === 0 ? 10 : values[i];
+            const r = (displayValue / 100) * radius;
             return {
                 x: centerX + r * Math.cos(angle),
                 y: centerY + r * Math.sin(angle),
@@ -142,7 +143,7 @@ const RadarChart = () => {
             ctx.fill();
         });
 
-        [0.2, 0.4, 0.6, 0.8, 1].forEach((scale) => {
+        [0.25, 0.5, 0.75, 1].forEach((scale) => {
             svg.append('path')
                 .attr('d', () => {
                     const points = attributes.map((_, i) => {
@@ -191,7 +192,8 @@ const RadarChart = () => {
                     const sinTheta = Math.sin(d.angle);
                     const projection = dx * cosTheta + dy * sinTheta;
                     const r = Math.max(0, Math.min(radius, projection));
-                    const newValue = Math.round((r / radius) * 100);
+                    const rawValue = (r / radius) * 100;
+                    const newValue = Math.max(0, Math.min(100, Math.round(rawValue / 25) * 25));
                     const attributeIndex = attributes.indexOf(attributes[points.indexOf(d)]);
                     const attributeName = attributes[attributeIndex];
                     setAttributeValues(prev => ({
@@ -238,11 +240,12 @@ const RadarChart = () => {
                     const index = Math.floor((normalizedAngle / (2 * Math.PI)) * attributes.length) % attributes.length;
                     const value = Math.min(Math.max((radiusClicked / maxRadius) * 100, 0), 100);
                     const attributeName = attributes[index];
+                    const snappedValue = Math.max(0, Math.min(100, Math.round(value / 25) * 25));
                     setAttributeValues(prev => ({
                         ...prev,
-                        [attributeName]: Math.round(value)
+                        [attributeName]: snappedValue
                     }));
-                    updateUserData({ ...userData.Attributes, [attributeName]: { ...userData.Attributes[attributeName], score: Math.round(value) } });
+                    updateUserData({ ...userData.Attributes, [attributeName]: { ...userData.Attributes[attributeName], score: snappedValue } });
                 }
             }
         });

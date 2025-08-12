@@ -20,6 +20,8 @@ export const CountryPopup = ({ country }) => {
             name: key,
             value: country.qualifications[key],
           }))}
+          countryScores={country.scores}
+          popularity={country.popularity}
           travelMonths={country.travelMonths}
           budgetLevel={country.budgetLevel}
         />
