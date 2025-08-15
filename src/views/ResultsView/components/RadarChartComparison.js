@@ -24,6 +24,7 @@ export const RadarChartComparison = ({ scores }) => {
     const canvasRef = useRef(null);
     const svgRef = useRef(null);
     const containerRef = useRef(null);
+    const [hoveredAxis, setHoveredAxis] = useState(null);
     const { userData } = useTravelRecommenderStore();
 
     const [dimensions, setDimensions] = useState({ width: 300, height: 300 });
@@ -154,6 +155,47 @@ export const RadarChartComparison = ({ scores }) => {
                 .attr('fill', 'none');
         });
 
+        if (hoveredAxis !== null) {
+            const i = hoveredAxis;
+
+            const prev = userPoints[(i - 1 + userPoints.length) % userPoints.length];
+            const curr = userPoints[i];
+            const next = userPoints[(i + 1) % userPoints.length];
+
+            // Compute midpoints
+            const midPrevX = (prev.x + curr.x) / 2;
+            const midPrevY = (prev.y + curr.y) / 2;
+            const midNextX = (curr.x + next.x) / 2;
+            const midNextY = (curr.y + next.y) / 2;
+
+            ctx.strokeStyle = 'yellow';
+            ctx.lineWidth = 3;
+
+            // Segment 1: midpoint with previous → current
+            ctx.beginPath();
+            ctx.moveTo(midPrevX, midPrevY);
+            ctx.lineTo(curr.x, curr.y);
+            ctx.stroke();
+
+            // Segment 2: current → midpoint with next
+            ctx.beginPath();
+            ctx.moveTo(curr.x, curr.y);
+            ctx.lineTo(midNextX, midNextY);
+            ctx.stroke();
+
+            // Segment 3: center → midpoint with previous
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(midPrevX, midPrevY);
+            ctx.stroke();
+
+            // Segment 4: center → midpoint with next
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(midNextX, midNextY);
+            ctx.stroke();
+        }
+
         attributeNames.forEach((name, i) => {
             const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
             const x = centerX + 1.1 * radius * Math.cos(angle);
@@ -189,7 +231,7 @@ export const RadarChartComparison = ({ scores }) => {
 
                 const dx = axisEndX - centerX;
                 const dy = axisEndY - centerY;
-                const t = Math.max(0, Math.min(1, ((mouseX - centerX) * dx + (mouseY - centerY) * dy) / (dx*dx + dy*dy)));
+                const t = Math.max(0, Math.min(1, ((mouseX - centerX) * dx + (mouseY - centerY) * dy) / (dx * dx + dy * dy)));
                 const projX = centerX + t * dx;
                 const projY = centerY + t * dy;
                 const dist = Math.hypot(mouseX - projX, mouseY - projY);
@@ -201,6 +243,7 @@ export const RadarChartComparison = ({ scores }) => {
             });
 
             if (nearestAxis && minDistance < 20) {
+                setHoveredAxis(nearestAxis.index);
                 setTooltip({
                     visible: true,
                     x: event.clientX,
@@ -208,6 +251,7 @@ export const RadarChartComparison = ({ scores }) => {
                     text: `${nearestAxis.name}: Placeholder tooltip`
                 });
             } else {
+                setHoveredAxis(null);
                 setTooltip((t) => ({ ...t, visible: false }));
             }
         };
@@ -220,7 +264,7 @@ export const RadarChartComparison = ({ scores }) => {
             container.removeEventListener("mousemove", handleMouseMove);
         };
 
-    }, [userValues, destValues, attributeNames, dimensions]);
+    }, [userValues, destValues, attributeNames, dimensions, hoveredAxis]);
 
     return (
         <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'center', gap: 0 }}>
