@@ -16,7 +16,7 @@ export const DetailScores = ({ scores, popularity, countryScores, travelMonths, 
           color: "#000",
         }}
       >
-        <div>
+        <div style={{ fontSize: "12px" }}>
           <ScoreBreakdownBar scores={countryScores} displayLegend={false} />
         </div>
         <div style={{ width: "100%" }}>
@@ -29,7 +29,7 @@ export const DetailScores = ({ scores, popularity, countryScores, travelMonths, 
         </div> */}
         <div>
           {scores.map((entry, index) => (
-            <AttributeScore score={entry} index={index} key={index} />
+              <AttributeScore score={entry} index={index} key={index} />
           ))}
         </div>
       </div>

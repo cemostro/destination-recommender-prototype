@@ -24,7 +24,7 @@ export const CustomizationContainer = () => {
           }}
           key={index}
         >
-          <Attribute attrName={item} sliderColor={userData.Attributes[item].weight === 0 ? "gray" : myConstant.COLORS[index % myConstant.COLORS.length]} />
+          <Attribute attrName={item} sliderColor={userData.Attributes[item].weight === 0 ? "#808080" : myConstant.COLORS[index % myConstant.COLORS.length]} />
         </div>
       ))}
     </div>

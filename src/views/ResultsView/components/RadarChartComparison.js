@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useRef, useMemo, useState, useLayoutEffect, useCallback } from 'react';
 import * as d3 from 'd3';
 import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 import { COLORS } from '../../../data/constantData';
@@ -66,6 +66,56 @@ export const RadarChartComparison = ({ scores }) => {
     const destValues = useMemo(() => attributes.map(attr => attr.value), [attributes]);
     const overlapValues = useMemo(() => attributes.map(attr => Math.min(getUserData(attr.name).score, attr.value)), [attributes, userData.Attributes]);
 
+    const getTooltipText = useCallback((index) => {
+        let score = userValues[index];
+        let benchmark = destValues[index];
+        let diff = score - benchmark;
+        let total = 100 - Math.abs(diff);
+        if (diff === 0) {
+            return (
+                "The " +
+                attributeNames[index] +
+                " of this country has the score " +
+                score +
+                " which is equal to your preference. So the " +
+                attributeNames[index] +
+                " is 100% matching."
+            );
+        } else if (diff > 0) {
+            return (
+                "The " +
+                attributeNames[index] +
+                " of this country has the score " +
+                score +
+                " which is " +
+                Math.abs(diff) +
+                "% more than what you prefer. So the " +
+                attributeNames[index] +
+                " is " +
+                total +
+                "%(100-" +
+                Math.abs(diff) +
+                ") matching."
+            );
+        } else {
+            return (
+                "The " +
+                attributeNames[index] +
+                " of this country has the score " +
+                score +
+                " which is " +
+                Math.abs(diff) +
+                "% less than what you prefer. So the " +
+                attributeNames[index] +
+                " is " +
+                total +
+                "%(100-" +
+                Math.abs(diff) +
+                ") matching."
+            );
+        }
+    }, [userValues, destValues, attributeNames]);
+
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
@@ -89,12 +139,12 @@ export const RadarChartComparison = ({ scores }) => {
         const destPoints = calcPoints(destValues);
         const overlapPoints = calcPoints(overlapValues);
 
-        const drawPolygon = (points, color, dashed = false) => {
+        const drawPolygon = (points, color, dashed = false, lineWidth = 2) => {
             ctx.beginPath();
             points.forEach((p, i) => ctx[i === 0 ? 'moveTo' : 'lineTo'](p.x, p.y));
             ctx.closePath();
             ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
+            ctx.lineWidth = lineWidth;
             ctx.setLineDash(dashed ? [5, 5] : []);
             ctx.stroke();
         };
@@ -155,45 +205,37 @@ export const RadarChartComparison = ({ scores }) => {
                 .attr('fill', 'none');
         });
 
-        if (hoveredAxis !== null) {
-            const i = hoveredAxis;
+        const drawHighlightLine = (fromX, fromY, toX, toY) => {
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+        };
 
-            const prev = userPoints[(i - 1 + userPoints.length) % userPoints.length];
-            const curr = userPoints[i];
-            const next = userPoints[(i + 1) % userPoints.length];
+        const drawHighlightPolygon = (index, points, color, lineDash = []) => {
+            const prev = points[(index - 1 + points.length) % points.length];
+            const curr = points[index];
+            const next = points[(index + 1) % points.length];
 
-            // Compute midpoints
             const midPrevX = (prev.x + curr.x) / 2;
             const midPrevY = (prev.y + curr.y) / 2;
             const midNextX = (curr.x + next.x) / 2;
             const midNextY = (curr.y + next.y) / 2;
 
-            ctx.strokeStyle = 'yellow';
+            ctx.strokeStyle = color;
             ctx.lineWidth = 3;
+            ctx.setLineDash(lineDash);
 
-            // Segment 1: midpoint with previous → current
-            ctx.beginPath();
-            ctx.moveTo(midPrevX, midPrevY);
-            ctx.lineTo(curr.x, curr.y);
-            ctx.stroke();
+            drawHighlightLine(midPrevX, midPrevY, curr.x, curr.y);
+            drawHighlightLine(curr.x, curr.y, midNextX, midNextY);
+            drawHighlightLine(centerX, centerY, midPrevX, midPrevY);
+            drawHighlightLine(centerX, centerY, midNextX, midNextY);
+        };
 
-            // Segment 2: current → midpoint with next
-            ctx.beginPath();
-            ctx.moveTo(curr.x, curr.y);
-            ctx.lineTo(midNextX, midNextY);
-            ctx.stroke();
-
-            // Segment 3: center → midpoint with previous
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(midPrevX, midPrevY);
-            ctx.stroke();
-
-            // Segment 4: center → midpoint with next
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(midNextX, midNextY);
-            ctx.stroke();
+        if (hoveredAxis !== null) {
+            const i = hoveredAxis;
+            drawHighlightPolygon(i, destPoints, 'white', []);
+            drawHighlightPolygon(i, userPoints, 'yellow', [5, 5]);
         }
 
         attributeNames.forEach((name, i) => {
@@ -248,7 +290,7 @@ export const RadarChartComparison = ({ scores }) => {
                     visible: true,
                     x: event.clientX,
                     y: event.clientY,
-                    text: `${nearestAxis.name}: Placeholder tooltip`
+                    text: getTooltipText(nearestAxis.index)
                 });
             } else {
                 setHoveredAxis(null);
@@ -290,7 +332,8 @@ export const RadarChartComparison = ({ scores }) => {
                         borderRadius: "4px",
                         fontSize: "12px",
                         pointerEvents: "none",
-                        zIndex: 1000
+                        zIndex: 1000,
+                        maxWidth: "200px",
                     }}
                 >
                     {tooltip.text}

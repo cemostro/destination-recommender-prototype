@@ -107,7 +107,7 @@ const ResultInfo = ({ country, label }) => {
         </>
       )}
       <hr />
-      <div>
+      <div style={{ fontSize: "14px" }}>
         <ScoreBreakdownBar scores={country.scores} displayLegend={true} />
       </div>
 
