@@ -20,7 +20,6 @@ const LegendItem = ({ color, dashed, label }) => {
     );
 };
 
-
 export const RadarChartComparison = ({ scores }) => {
     const canvasRef = useRef(null);
     const svgRef = useRef(null);
@@ -28,6 +27,7 @@ export const RadarChartComparison = ({ scores }) => {
     const { userData } = useTravelRecommenderStore();
 
     const [dimensions, setDimensions] = useState({ width: 300, height: 300 });
+    const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, text: "" });
 
     useLayoutEffect(() => {
         if (!containerRef.current) return;
@@ -40,7 +40,6 @@ export const RadarChartComparison = ({ scores }) => {
         });
 
         observer.observe(containerRef.current);
-
         return () => observer.disconnect();
     }, []);
 
@@ -141,7 +140,7 @@ export const RadarChartComparison = ({ scores }) => {
         drawPolygon(destPoints, '#808080');
         drawPolygon(userPoints, '#ffffff', true);
 
-        [0.2, 0.4, 0.6, 0.8, 1].forEach(scale => {
+        [0.25, 0.5, 0.75, 1].forEach(scale => {
             svg.append('path')
                 .attr('d', attributeNames.map((_, i) => {
                     const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
@@ -174,6 +173,53 @@ export const RadarChartComparison = ({ scores }) => {
                 .text(name);
         });
 
+        // Mouse hover tooltip logic
+        const handleMouseMove = (event) => {
+            const rect = canvasRef.current.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+
+            let nearestAxis = null;
+            let minDistance = Infinity;
+
+            attributeNames.forEach((name, i) => {
+                const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
+                const axisEndX = centerX + radius * Math.cos(angle);
+                const axisEndY = centerY + radius * Math.sin(angle);
+
+                const dx = axisEndX - centerX;
+                const dy = axisEndY - centerY;
+                const t = Math.max(0, Math.min(1, ((mouseX - centerX) * dx + (mouseY - centerY) * dy) / (dx*dx + dy*dy)));
+                const projX = centerX + t * dx;
+                const projY = centerY + t * dy;
+                const dist = Math.hypot(mouseX - projX, mouseY - projY);
+
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    nearestAxis = { name, x: projX, y: projY, index: i };
+                }
+            });
+
+            if (nearestAxis && minDistance < 20) {
+                setTooltip({
+                    visible: true,
+                    x: event.clientX,
+                    y: event.clientY,
+                    text: `${nearestAxis.name}: Placeholder tooltip`
+                });
+            } else {
+                setTooltip((t) => ({ ...t, visible: false }));
+            }
+        };
+
+        const container = containerRef.current;
+        container.addEventListener("mousemove", handleMouseMove);
+        container.addEventListener("mouseleave", () => setTooltip(t => ({ ...t, visible: false })));
+
+        return () => {
+            container.removeEventListener("mousemove", handleMouseMove);
+        };
+
     }, [userValues, destValues, attributeNames, dimensions]);
 
     return (
@@ -184,11 +230,28 @@ export const RadarChartComparison = ({ scores }) => {
             </div>
 
             <div style={{ color: '#fff', fontFamily: "'Inter', sans-serif", fontSize: Math.max(10, radius * 0.08), marginTop: 40 }}>
-                {/* <div style={{ marginBottom: 8, fontWeight: 'bold' }}>Legend</div> */}
-
                 <LegendItem color="#ffffff" dashed label="Your Preferences" />
                 <LegendItem color="#808080" dashed={false} label="Destination Value" />
             </div>
+
+            {tooltip.visible && (
+                <div
+                    style={{
+                        position: "fixed",
+                        left: tooltip.x + 10,
+                        top: tooltip.y + 10,
+                        background: "rgba(0,0,0,0.8)",
+                        color: "#fff",
+                        padding: "6px 8px",
+                        borderRadius: "4px",
+                        fontSize: "12px",
+                        pointerEvents: "none",
+                        zIndex: 1000
+                    }}
+                >
+                    {tooltip.text}
+                </div>
+            )}
         </div>
     );
 };

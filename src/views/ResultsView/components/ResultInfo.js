@@ -11,7 +11,6 @@ import useTravelRecommenderStore from "../../../store/travelRecommenderStore";
 
 const ResultInfo = ({ country, label }) => {
   const userData = useTravelRecommenderStore((state) => state.userData);
-  console.log(country)
   const [scores, setScores] = useState([]);
   const loadData = () => {
     let s;
