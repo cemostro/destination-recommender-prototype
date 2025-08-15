@@ -49,34 +49,34 @@ export const RadarChartComparison = ({ scores }) => {
     const centerX = width / 2;
     const centerY = height / 2;
 
-    const getUserData = (attrName) => {
+    const getUserData = useCallback((attrName) => {
         const key = attrName.charAt(0).toUpperCase() + attrName.slice(1);
         return userData.Attributes[key];
-    };
+    }, [userData.Attributes]);
 
     const attributes = useMemo(() => {
         return scores.filter((entry) => getUserData(entry.name).weight !== 0);
-    }, [scores, userData.Attributes]);
+    }, [scores, getUserData]);
 
     const attributeNames = useMemo(() => {
         return attributes.map(attr => attr.name.charAt(0).toUpperCase() + attr.name.slice(1));
     }, [attributes]);
 
-    const userValues = useMemo(() => attributes.map(attr => getUserData(attr.name).score), [attributes, userData.Attributes]);
+    const userValues = useMemo(() => attributes.map(attr => getUserData(attr.name).score), [attributes, getUserData]);
     const destValues = useMemo(() => attributes.map(attr => attr.value), [attributes]);
-    const overlapValues = useMemo(() => attributes.map(attr => Math.min(getUserData(attr.name).score, attr.value)), [attributes, userData.Attributes]);
+    const overlapValues = useMemo(() => attributes.map(attr => Math.min(getUserData(attr.name).score, attr.value)), [attributes, getUserData]);
 
     const getTooltipText = useCallback((index) => {
         let score = userValues[index];
         let benchmark = destValues[index];
-        let diff = score - benchmark;
+        let diff = benchmark - score;
         let total = 100 - Math.abs(diff);
         if (diff === 0) {
             return (
                 "The " +
                 attributeNames[index] +
                 " of this country has the score " +
-                score +
+                benchmark +
                 " which is equal to your preference. So the " +
                 attributeNames[index] +
                 " is 100% matching."
@@ -86,7 +86,7 @@ export const RadarChartComparison = ({ scores }) => {
                 "The " +
                 attributeNames[index] +
                 " of this country has the score " +
-                score +
+                benchmark +
                 " which is " +
                 Math.abs(diff) +
                 "% more than what you prefer. So the " +
@@ -102,7 +102,7 @@ export const RadarChartComparison = ({ scores }) => {
                 "The " +
                 attributeNames[index] +
                 " of this country has the score " +
-                score +
+                benchmark +
                 " which is " +
                 Math.abs(diff) +
                 "% less than what you prefer. So the " +
