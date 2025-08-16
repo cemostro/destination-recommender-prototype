@@ -4,7 +4,7 @@ import useTravelRecommenderStore from "../../store/travelRecommenderStore";
 import { popularityParameters, noveltyParameters, popularityParameterColors, noveltyParameterColors } from '../../data/constantData';
 
 const abbreviations = {
-    'Personalization': 'Pers',
+    'Personalized': 'Pers',
     'Popular Spots': 'Pop',
     'Less Popular Spots': 'LP',
     'List Diversity': 'Div',

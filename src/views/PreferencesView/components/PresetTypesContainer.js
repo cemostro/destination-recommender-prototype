@@ -55,7 +55,7 @@ export const PresetTypesContainer = () => {
 
     return (
         <div>
-            <p style={{ textAlign: "start", fontSize: "small" }}>
+            <p style={{ textAlign: "start" }}>
                 Choose the topics that interest you the most:
             </p>
             {presetTypesRows}

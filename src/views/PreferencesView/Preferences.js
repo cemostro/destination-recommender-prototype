@@ -22,8 +22,8 @@ import PopularityToggle from "./components/PopularityToggle";
 const presets = [
   { value: 'balanced', weights: [33.3, 33.3, 33.4] },
   { value: 'personalized', weights: [100, 0, 0] },
-  { value: 'explorer', weights: [30, 0, 70] },
-  { value: 'classic', weights: [30, 70, 0] },
+  { value: 'explorer', weights: [20, 40, 40], popularityToggle: 'hidden' },
+  { value: 'classic', weights: [30, 70, 0], popularityToggle: 'popular' },
 ];
 
 // const presets = [
@@ -45,8 +45,8 @@ const Preferences = () => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateUserData = useCallback(
-    debounce((weights) => {
-      setUserData({ ...userData, AlgorithmWeights: weights });
+    debounce((weights, popularityToggle) => {
+      setUserData({ ...userData, AlgorithmWeights: weights, PopularityToggle: popularityToggle || userData.PopularityToggle });
     }, 500),
     [userData]
   );
@@ -81,7 +81,11 @@ const Preferences = () => {
       const preset = presets.find(p => p.value === presetName);
       if (preset) {
         const newWeights = [...preset.weights];
-        handleWeightChange(newWeights);
+        if (preset.popularityToggle) {
+          setPopularityToggleValue(preset.popularityToggle);
+        }
+        setAlgorithmWeights(newWeights);
+        updateUserData(newWeights, preset.popularityToggle);
       }
     }
   };
@@ -142,7 +146,7 @@ const Preferences = () => {
         </Tab>
       </Tabs>
       <hr />
-      <p style={{ textAlign: "left" }}>Set your travel compass:</p>
+      <p style={{ textAlign: "left" }}>Adjust your recommendation settings:</p>
       <div className="journey-style-placeholder-1"  >
         <PresetSelect
           value={selectedPreset}

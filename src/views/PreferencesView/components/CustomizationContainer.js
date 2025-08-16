@@ -7,7 +7,7 @@ export const CustomizationContainer = () => {
   const { userData } = useTravelRecommenderStore();
   return (
     <div>
-      <p style={{ textAlign: "start", fontSize: "small" }}>
+      <p style={{ textAlign: "start"}}>
         Rate the topics according to their importance to you:
       </p>
       {Object.keys(userData.Attributes).map((item, index) => (
