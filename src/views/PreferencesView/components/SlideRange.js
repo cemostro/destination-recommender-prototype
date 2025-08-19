@@ -6,7 +6,7 @@ import { debounce } from "lodash";
 const SlideRange = ({ attrName, sliderColor }) => {
   const { userData, setUserData } = useTravelRecommenderStore();
 
-  const [sliderProgress, setSliderProgress] = useState(50);
+  const [sliderProgress, setSliderProgress] = useState(userData.Attributes[attrName].score);
   const [value, setValue] = useState(userData.Attributes[attrName].score);
 
   const onChange = (value) => {

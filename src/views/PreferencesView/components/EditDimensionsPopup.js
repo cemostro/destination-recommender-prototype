@@ -58,6 +58,8 @@ const EditDimensionsPopup = ({ onClose }) => {
                         />
                     ))}
                 </Form>
+                <p style={{ color: 'white' }}>Tip: Dimensions can also be removed by double clicking on the labels around the chart.</p>
+
             </Modal.Body>
             <Modal.Footer style={{ backgroundColor: '#193D4B', borderTop: 'none' }}>
                 <Button variant="secondary" onClick={onClose}>

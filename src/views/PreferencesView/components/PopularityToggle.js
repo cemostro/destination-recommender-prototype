@@ -9,7 +9,7 @@ export default function PopularityToggle({ value, onChange }) {
                 className={`toggle-option ${value === "popular" ? "active" : ""}`}
                 onClick={() => onChange("popular")}
             >
-                Prioritize Popular
+                Prioritize More Popular
             </button>
             <button
                 className={`toggle-option ${value === "hidden" ? "active" : ""}`}

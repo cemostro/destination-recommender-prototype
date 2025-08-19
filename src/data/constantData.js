@@ -10,7 +10,7 @@ export const COLORS = [
   "#c08552",
 ];
 
-export const popularityParameters = ['Personalized', 'Popular Spots', 'List Diversity'];
-export const noveltyParameters = ['Personalized', 'Less Popular Spots', 'List Diversity'];
+export const popularityParameters = ['Personalized', 'Popularity', 'List Diversity'];
+export const noveltyParameters = ['Personalized', 'Low Popularity', 'List Diversity'];
 export const popularityParameterColors = ["#3b82f6", "#ef4444", "#22c55e"];
 export const noveltyParameterColors = ["#3b82f6", "#960089", "#22c55e"];

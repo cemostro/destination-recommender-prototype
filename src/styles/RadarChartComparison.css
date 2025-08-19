@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 6 / 5;
-  max-width: 350px; /* Optional max */
+  max-width: 450px; /* Optional max */
 }
 
 .radar-chart-comparison-container canvas,

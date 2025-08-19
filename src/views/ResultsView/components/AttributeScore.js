@@ -7,7 +7,7 @@ export const AttributeScore = ({ score, index, userPref }) => {
   return (
     <Row>
       <Col xs={4} style={{ textAlign: "left", fontSize: "small" }}>
-        {score.name}
+        {score.name.charAt(0).toUpperCase() + score.name.slice(1)}
       </Col>
       <Col xs={5}>
         <BarChart

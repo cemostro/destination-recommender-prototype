@@ -45,7 +45,7 @@ export const RadarChartComparison = ({ scores }) => {
     }, []);
 
     const { width, height } = dimensions;
-    const radius = Math.min(width, height) * 0.32;
+    const radius = Math.min(width, height) * 0.35;
     const centerX = width / 2;
     const centerY = height / 2;
 
@@ -309,13 +309,13 @@ export const RadarChartComparison = ({ scores }) => {
     }, [userValues, destValues, attributeNames, dimensions, hoveredAxis]);
 
     return (
-        <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'center', gap: 0 }}>
-            <div className="radar-chart-comparison-container" ref={containerRef} style={{ flexShrink: 0 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div className="radar-chart-comparison-container" ref={containerRef}>
                 <canvas ref={canvasRef} width={width} height={height} style={{ position: 'absolute' }} />
                 <svg ref={svgRef} style={{ position: 'absolute' }}></svg>
             </div>
 
-            <div style={{ color: '#fff', fontFamily: "'Inter', sans-serif", fontSize: Math.max(10, radius * 0.08), marginTop: 40 }}>
+            <div style={{ color: '#fff', fontFamily: "'Inter', sans-serif", fontSize: Math.max(10, radius * 0.08), marginTop: -20 }}>
                 <LegendItem color="#ffffff" dashed label="Your Preferences" />
                 <LegendItem color="#808080" dashed={false} label="Destination Value" />
             </div>

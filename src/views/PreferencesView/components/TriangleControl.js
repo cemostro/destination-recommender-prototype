@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as d3 from 'd3';
 import "../../../styles/TriangleControl.css";
-import { popularityParameters, noveltyParameters, popularityParameterColors, noveltyParameterColors } from '../../../data/constantData';
+import { popularityParameterColors, noveltyParameterColors } from '../../../data/constantData';
 
 const TriangleControl = ({ weights, popularityToggleValue, setWeights, setSelectedPreset }) => {
   const containerRef = useRef(null);
@@ -90,7 +90,7 @@ const TriangleControl = ({ weights, popularityToggleValue, setWeights, setSelect
     ctx.fillStyle = '#f0f0f0';
     ctx.fillRect(0, 0, width, height);
 
-    const parameters = popularityToggleValue === "popular" ? popularityParameters : noveltyParameters;
+    const parameters = ["More Personalized", popularityToggleValue === "popular" ? "More Popular Spots" : "Less Popular Spots", "Higher List Diversity"];
     const parameterColors = popularityToggleValue === "popular" ? popularityParameterColors : noveltyParameterColors;
 
     const vertices = [

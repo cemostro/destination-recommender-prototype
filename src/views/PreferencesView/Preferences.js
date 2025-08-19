@@ -128,10 +128,12 @@ const Preferences = () => {
         id="mode"
         onSelect={(k) => { setKey(k); setUserData({ ...userData, PreferenceMode: k, PresetType: [] }); }}
         className="mb-3"
+        mountOnEnter
+        unmountOnExit
       >
-        <Tab eventKey="preset" title="Presets">
+        {/* <Tab eventKey="preset" title="Presets">
           <PresetTypesContainer />
-        </Tab>
+        </Tab> */}
         <Tab eventKey="slider" title="Preference Sliders">
           <CustomizationContainer />
         </Tab>
