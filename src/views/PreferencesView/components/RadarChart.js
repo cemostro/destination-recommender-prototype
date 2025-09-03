@@ -54,7 +54,7 @@ const RadarChart = () => {
     const updateUserData = useCallback(
         debounce((newAttributes) => {
             setUserData({ ...userData, Attributes: newAttributes });
-        }, 500),
+        }, 100),
         [userData]
     );
 
@@ -87,14 +87,14 @@ const RadarChart = () => {
         const attributes = Object.keys(attributeValues).filter(attr => includedAttributes.includes(attr));
         const values = attributes.map(attr => attributeValues[attr]);
 
-        const points = attributes.map((_, i) => {
+        const points = attributes.map((attribute, i) => {
             const angle = (i / attributes.length) * 2 * Math.PI - Math.PI / 2;
             const displayValue = values[i] === 0 ? 10 : values[i];
             const r = (displayValue / 100) * radius;
             return {
                 x: centerX + r * Math.cos(angle),
                 y: centerY + r * Math.sin(angle),
-                color: d3.color(COLORS[i % COLORS.length]),
+                color: d3.color(COLORS[attribute]),
                 value: values[i],
                 angle
             };

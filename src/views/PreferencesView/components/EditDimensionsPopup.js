@@ -44,6 +44,9 @@ const EditDimensionsPopup = ({ onClose }) => {
                 <Modal.Title style={{ color: 'white' }}>Edit Dimensions</Modal.Title>
             </Modal.Header>
             <Modal.Body style={{ backgroundColor: '#193D4B', maxHeight: '70vh', overflowY: 'auto' }}>
+                <p style={{ color: 'white', fontSize: '1.1rem' }}>
+                    Choose which dimensions influence your recommendations:
+                </p>
                 <Form>
                     {Object.keys(userData.Attributes).map((attr) => (
                         <Form.Check

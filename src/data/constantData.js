@@ -1,14 +1,14 @@
-export const COLORS = [
-  "#98a886",
-  "#16B0B2",
-  "#585123",
-  "#3f8efc",
-  "#7b2cbf",
-  "#f72585",
-  "#f57eb6",
-  "#b56576",
-  "#c08552",
-];
+export const COLORS = {
+  Nature: "#98a886",
+  Architecture: "#16B0B2",
+  Hiking: "#585123",
+  Wintersports: "#3f8efc",
+  Beach: "#7b2cbf",
+  Culture: "#f72585",
+  Culinary: "#f57eb6",
+  Entertainment: "#b56576",
+  Shopping: "#c08552",
+};
 
 export const popularityParameters = ['Personalized', 'Popularity', 'List Diversity'];
 export const noveltyParameters = ['Personalized', 'Low Popularity', 'List Diversity'];

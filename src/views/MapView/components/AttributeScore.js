@@ -20,7 +20,7 @@ export const AttributeScore = ({ score, index }) => {
           score={score}
           benchmark={getUserData(score.name).score}
           showBenchmark={userData.PresetType.length === 0}
-          color={myConstant.COLORS[index % myConstant.COLORS.length]}
+          color={myConstant.COLORS[score.name.charAt(0).toUpperCase() + score.name.slice(1)]}
         />
       </Col>
     </Row>

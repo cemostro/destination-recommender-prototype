@@ -5,8 +5,8 @@ import { popularityParameters, noveltyParameters, popularityParameterColors, nov
 
 const abbreviations = {
     'Personalized': 'Pers',
-    'Popular Spots': 'Pop',
-    'Less Popular Spots': 'LP',
+    'Popularity': 'Pop',
+    'Low Popularity': 'LP',
     'List Diversity': 'Div',
 };
 

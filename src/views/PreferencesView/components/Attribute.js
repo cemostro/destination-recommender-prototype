@@ -2,7 +2,8 @@ import React from "react";
 import { Row, Col } from "react-bootstrap";
 import "../../../styles/App.css";
 import SlideRange from "./SlideRange";
-import PrioritySwitch from "./PrioritySwitch";
+// import PrioritySwitch from "./PrioritySwitch";
+import PriorityCheckbox from "./PriorityCheckbox";
 
 const Attribute = ({ attrName, sliderColor }) => {
   return (
@@ -19,7 +20,7 @@ const Attribute = ({ attrName, sliderColor }) => {
         <SlideRange attrName={attrName} sliderColor={sliderColor} />
       </Col>
       <Col xs={1}>
-        <PrioritySwitch attrName={attrName} />
+        <PriorityCheckbox attrName={attrName} />
       </Col>
     </Row>
   );

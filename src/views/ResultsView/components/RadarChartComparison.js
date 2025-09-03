@@ -124,14 +124,14 @@ export const RadarChartComparison = ({ scores }) => {
         ctx.clearRect(0, 0, width, height);
         svg.selectAll('*').remove();
 
-        const calcPoints = (values) => attributeNames.map((_, i) => {
+        const calcPoints = (values) => attributeNames.map((attribute, i) => {
             const angle = (i / attributeNames.length) * 2 * Math.PI - Math.PI / 2;
             const r = (values[i] / 100) * radius;
             return {
                 x: centerX + r * Math.cos(angle),
                 y: centerY + r * Math.sin(angle),
                 angle,
-                color: d3.color(COLORS[i % COLORS.length])
+                color: d3.color(COLORS[attribute])
             };
         });
 

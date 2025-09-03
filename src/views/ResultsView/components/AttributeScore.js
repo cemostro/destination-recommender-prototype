@@ -12,7 +12,7 @@ export const AttributeScore = ({ score, index, userPref }) => {
       <Col xs={5}>
         <BarChart
           score={score}
-          color={myConstant.COLORS[index % myConstant.COLORS.length]}
+          color={myConstant.COLORS[score.name.charAt(0).toUpperCase() + score.name.slice(1)]}
           benchmark={userPref}
           showBenchmark={true}
         />

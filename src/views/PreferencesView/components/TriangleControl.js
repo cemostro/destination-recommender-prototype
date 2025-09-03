@@ -90,7 +90,7 @@ const TriangleControl = ({ weights, popularityToggleValue, setWeights, setSelect
     ctx.fillStyle = '#f0f0f0';
     ctx.fillRect(0, 0, width, height);
 
-    const parameters = ["More Personalized", popularityToggleValue === "popular" ? "More Popular Spots" : "Less Popular Spots", "Higher List Diversity"];
+    const parameters = ["More Personalized", popularityToggleValue === "popular" ? "More Popular Spots" : "Less Popular Spots", "More Variety"];
     const parameterColors = popularityToggleValue === "popular" ? popularityParameterColors : noveltyParameterColors;
 
     const vertices = [

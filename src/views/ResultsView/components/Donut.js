@@ -45,7 +45,7 @@ const Donut = ({ scores, label }) => {
         {scores.map((entry, index) => (
           <Cell
             key={`cell-${index}`}
-            fill={myConstant.COLORS[index % myConstant.COLORS.length]}
+            fill={myConstant.COLORS[entry.name.charAt(0).toUpperCase() + entry.name.slice(1)]}
           />
         ))}
       </Pie>
