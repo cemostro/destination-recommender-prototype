@@ -66,7 +66,7 @@ const IntroModal = ({ show, onClose }) => {
       title: "Adjusting Recommendation Settings",
       content: (
         <div style={{ color: "white" }}>
-          <p style={{ fontSize: "1.2rem", lineHeight: "1.6" }}>
+          <p style={{ fontSize: "1.1rem", lineHeight: "1.6" }}>
             Once you’ve set your topic preferences, you can fine-tune <strong>how the
               recommendations are generated</strong>. There are three different ways to
             control the algorithm:
@@ -125,7 +125,7 @@ const IntroModal = ({ show, onClose }) => {
           {/* Popularity toggle */}
           <p
             style={{
-              fontSize: "1.2rem",
+              fontSize: "1.1rem",
               lineHeight: "1.6",
               marginTop: "2rem",
             }}
