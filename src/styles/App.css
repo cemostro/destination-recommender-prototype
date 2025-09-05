@@ -107,6 +107,25 @@ input.stay-days {
   cursor: pointer;
 }
 
+/* Desktop: keep the panels filling height */
+.right-column,
+.left-column,
+.map-column {
+  height: 100%;
+  background-color: #193D4B;
+}
+
+/* Mobile: stack panels and remove inner scrollbars */
+@media (max-width: 768px) {
+  .right-column,
+  .left-column,
+  .map-column {
+    height: auto;
+    overflow: visible;
+    background-color: #193D4B;
+  }
+}
+
 .journey-style-placeholder-2 {
   width: 100%;
   aspect-ratio: 5 / 4;

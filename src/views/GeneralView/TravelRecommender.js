@@ -22,11 +22,11 @@ const TravelRecommender = () => {
     <div className="App">
       <Row style={{ height: "100%" }}>
         {leftColumnOpen && (
-          <Col style={{ height: "100%", paddingRight: 0 }}>
+          <Col style={{ paddingRight: 0 }} className="left-column">
             <Preferences />
           </Col>
         )}
-        <Col xs={5 + (leftColumnOpen ? 0 : 3) + (rightColumnOpen ? 0 : 3)} style={{ height: "100%", padding: 0 }}>
+        <Col md={5 + (leftColumnOpen ? 0 : 3) + (rightColumnOpen ? 0 : 3)} style={{ padding: 0 }} className="map-column">
           <div style={{ display: "grid", gridTemplateColumns: "10px 1fr 10px", height: "100%" }}>
             <div className="expand-bar" onClick={() => setLeftColumnOpen(oldState => !oldState)}>
               <FontAwesomeIcon icon={leftColumnOpen ? faAngleLeft : faAngleRight} />
@@ -38,7 +38,7 @@ const TravelRecommender = () => {
           </div>
         </Col>
         {rightColumnOpen && (
-          <Col style={{ height: "100%" }} className='right-column'>
+          <Col className='right-column'>
             <Results activeResult={activeResult} setShowIntroModal={setShowIntroModal} />
           </Col>
         )}
