@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import Accordion from "react-bootstrap/Accordion";
+import Button from "react-bootstrap/Button";
 import "../../styles/App.css";
 import ResultInfo from "./components/ResultInfo";
 import useTravelRecommenderStore from "../../store/travelRecommenderStore";
 
-export const Results = ({ activeResult }) => {
+export const Results = ({ activeResult, setShowIntroModal }) => {
   const results = useTravelRecommenderStore((state) => state.results);
   const [activeIndex, setActiveIndex] = useState(-1);
   const accordElem = useRef(null);
@@ -24,7 +25,33 @@ export const Results = ({ activeResult }) => {
   }, [activeResult]);
   return (
     <div style={{ padding: "10px 0", height: "100%", overflow: "hidden" }}>
-      <p style={{ textAlign: "left" }}>Best destinations for you:</p>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "10px",
+        }}
+      >
+        <p style={{ textAlign: "left", margin: 0 }}>
+          Best destinations for you:
+        </p>
+        <Button
+          variant="outline-light"
+          size="sm"
+          onClick={() => setShowIntroModal(true)}
+          style={{
+            borderRadius: "50%",
+            width: "28px",
+            height: "28px",
+            padding: 0,
+            lineHeight: "1",
+            fontWeight: "bold",
+          }}
+        >
+          ?
+        </Button>
+      </div>
       {results.length > 0 ? (
         <div style={{ overflowX: "hidden", height: "95%", paddingRight: "5px" }} ref={accordElem}>
           <Accordion activeKey={activeIndex}>

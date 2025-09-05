@@ -4,10 +4,10 @@ import useTravelRecommenderStore from "../../store/travelRecommenderStore";
 import { popularityParameters, noveltyParameters, popularityParameterColors, noveltyParameterColors } from '../../data/constantData';
 
 const abbreviations = {
-    'Personalized': 'Pers',
+    'Personalization': 'Pers',
     'Popularity': 'Pop',
     'Low Popularity': 'LP',
-    'List Diversity': 'Div',
+    'Variety': 'Var',
 };
 
 export const ScoreBreakdownBar = ({ scores, displayLegend }) => {

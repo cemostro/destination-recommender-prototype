@@ -8,11 +8,15 @@ import { Results } from "../ResultsView/Results";
 import { Tooltip } from 'react-tooltip'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons'
+import IntroModal from "./IntroModal";
+import { Modal } from "react-bootstrap";
+
 
 const TravelRecommender = () => {
   const [activeResult, setActiveResult] = useState(0);
   const [leftColumnOpen, setLeftColumnOpen] = useState(true);
   const [rightColumnOpen, setRightColumnOpen] = useState(true);
+  const [showIntroModal, setShowIntroModal] = useState(true);
 
   return (
     <div className="App">
@@ -35,10 +39,15 @@ const TravelRecommender = () => {
         </Col>
         {rightColumnOpen && (
           <Col style={{ height: "100%" }} className='right-column'>
-            <Results activeResult={activeResult} />
+            <Results activeResult={activeResult} setShowIntroModal={setShowIntroModal} />
           </Col>
         )}
       </Row>
+      <Modal show={showIntroModal} onHide={() => setShowIntroModal(false)} centered size="xl">
+        <IntroModal
+          onClose={() => setShowIntroModal(false)}
+        />
+      </Modal>
       <Tooltip id="prio-switch-tooltip" style={{ width: "300px", zIndex: 99999 }} />
       <Tooltip id="additional-info-tooltip" style={{ width: "300px", zIndex: 99999 }} place="bottom" />
       <Tooltip id="barchart-tooltip" style={{ width: "300px", zIndex: 99999 }} place="bottom" />
