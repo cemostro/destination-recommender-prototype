@@ -173,7 +173,7 @@ class LoadCountriesFromCSV {
     // Calculate global diversity
     for (let i = 0; i < this.allResults.length; i++) {
       const current = this.allResults[i];
-      const ildScore = this.calculateILDScore(current, this.allResults);
+      const ildScore = this.calculateILDScore(current, this.allResults, countryScores, true);
       current.scores.individualScores.ild = ildScore;
       current.scores.weights.ild = userData.AlgorithmWeights[2] / 100;
     }
@@ -196,7 +196,7 @@ class LoadCountriesFromCSV {
 
     for (let i = 0; i < topResults.length; i++) {
       const current = topResults[i];
-      const avgDissimilarity = this.calculateILDScore(current, topResults);
+      const avgDissimilarity = this.calculateILDScore(current, topResults, countryScores, false);
 
       current.scores.totalScore = this.calculateFinalScore({ ...current.scores.individualScores, ild: avgDissimilarity }, current.scores.weights);
       current.scores.individualScores.ild = avgDissimilarity;
@@ -334,20 +334,20 @@ class LoadCountriesFromCSV {
     return 0;
   };
 
-  calculateILDScore = (current, allCountries) => {
+  calculateILDScore = (current, allCountries, countryScores, isGlobal) => {
     let sumDissimilarity = 0;
     let count = 0;
     for (let i = 0; i < allCountries.length; i++) {
       const other = allCountries[i];
       if (current.region === other.region) continue;
-      const dissimilarity = this.dissimilarityScore(current, other);
+      const dissimilarity = this.dissimilarityScore(current, other, countryScores, isGlobal);
       sumDissimilarity += dissimilarity;
       count++;
     }
     return count > 0 ? sumDissimilarity / count : 0;
   }
 
-  dissimilarityScore = (current, other) => {
+  dissimilarityScore = (current, other, countryScores, isGlobal) => {
     const keys = [
       "nature", "architecture", "hiking", "wintersports", "beach",
       "culture", "culinary", "entertainment", "shopping"
@@ -361,11 +361,23 @@ class LoadCountriesFromCSV {
       totalDiff += Math.abs(v1 - v2);
     }
 
+    if (isGlobal) {
+      return totalDiff / keys.length;
+    }
+
     if (current.country !== other.country) {
+      totalDiff += 500;
+    }
+
+    // Check parent of parent region
+    const currentParent = countryScores?.find(c => c.Region === current.country);
+    const otherParent = countryScores?.find(c => c.Region === other.country);
+
+    if (currentParent.ParentRegion === "World" || otherParent.ParentRegion === "World" || (currentParent.ParentRegion !== otherParent.ParentRegion)) {
       totalDiff += 200;
     }
 
-    return totalDiff / (keys.length + 2);
+    return totalDiff / (keys.length + 7);
   };
 
   getPriceGroup = (price) => {
