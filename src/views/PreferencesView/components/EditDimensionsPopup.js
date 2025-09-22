@@ -15,7 +15,7 @@ const EditDimensionsPopup = ({ onClose }) => {
     }, [userData.Attributes]);
 
     const handleSave = () => {
-        if (includedAttributes.length > 3) {
+        if (includedAttributes.length >= 3) {
             const updatedAttributes = Object.fromEntries(
                 Object.entries(userData.Attributes).map(([attr, data]) => [
                     attr,
