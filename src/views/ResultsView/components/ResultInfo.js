@@ -68,7 +68,7 @@ const ResultInfo = ({ country, label }) => {
       {userData.PreferenceMode === 'radar' ? (
         <>
           <p style={{ fontSize: "x-small" }}>
-            Scores of {country.region} based on your preferences: (The gray outline shows the score of the attribute for {country.region} and the dashed outline shows your preferences)
+            Scores of {country.region} based on your preferences: (The gray outline shows the score of the attribute for {country.region} and the dashed outline shows your preferences - hover on the chart sections for more details)
           </p>
           <RadarChartComparison
             scores={Object.keys(country.qualifications)?.map((key) => ({
