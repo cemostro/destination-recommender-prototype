@@ -173,7 +173,7 @@ export const RadarChartComparison = ({ scores }) => {
             ctx.fill();
         });
 
-        fillPolygon(destPoints, d3.color('#808080').copy({ opacity: 0.25 }).toString());
+        fillPolygon(destPoints, d3.color('#808080').copy({ opacity: 0.3 }).toString());
         overlapPoints.forEach((p, i) => {
             const prev = overlapPoints[(i - 1 + overlapPoints.length) % overlapPoints.length];
             const next = overlapPoints[(i + 1) % overlapPoints.length];
