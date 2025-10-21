@@ -2,7 +2,7 @@
 A destination recommender prototype integrating multiple forms of user control, implemented for the Master's Thesis at TUM "Investigating User Control to Influence Complex Recommender Systems"
 
 ## Demo
-A demo of this interface is available on [https://desti-rec.netlify.app/](https://destirec.netlify.app/)
+A demo of this interface is available on https://destirec.netlify.app
 ## Getting Started
 
 You need git to clone our repository.
